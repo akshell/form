@@ -506,12 +506,12 @@ function DateField(kwargs)
  * Default {@link time.strptime} input formats which are considered valid.
  */
 DateField.DEFAULT_DATE_INPUT_FORMATS = [
-    "%Y-%m-%d",              // "2006-10-25"
-    "%m/%d/%Y", "%m/%d/%y",  // "10/25/2006", "10/25/06"
-    "%b %d %Y", "%b %d, %Y", // "Oct 25 2006", "Oct 25, 2006"
-    "%d %b %Y", "%d %b, %Y", // "25 Oct 2006", "25 Oct, 2006"
-    "%B %d %Y", "%B %d, %Y", // "October 25 2006", "October 25, 2006"
-    "%d %B %Y", "%d %B, %Y"  // "25 October 2006", "25 October, 2006"
+    "yyyy-M-d",                    // "2006-10-25"
+    "M/d/yyyy", "M/d/yy",          // "10/25/2006", "10/25/06"
+    "MMM d yyyy", "MMM d, yyyy",   // "Oct 25 2006", "Oct 25, 2006"
+    "d MMM yyyy", "d MMM, yyyy",   // "25 Oct 2006", "25 Oct, 2006"
+    "MMMM d yyyy", "MMMM d, yyyy", // "October 25 2006", "October 25, 2006"
+    "d MMMM yyyy", "d MMMM, yyyy"  // "25 October 2006", "25 October, 2006"
 ];
 
 DateField.prototype = new Field();
@@ -587,8 +587,8 @@ function TimeField(kwargs)
  * Default {@link time.strptime} input formats which are considered valid.
  */
 TimeField.DEFAULT_TIME_INPUT_FORMATS = [
-    "%H:%M:%S", // "14:30:59"
-    "%H:%M"     // "14:30"
+    "H:m:s",  // "14:30:59"
+    "H:m"     // "14:30"
 ];
 
 TimeField.prototype = new Field();
@@ -669,15 +669,15 @@ function DateTimeField(kwargs)
  * Default {@link time.strptime} input formats which are considered valid.
  */
 DateTimeField.DEFAULT_DATETIME_INPUT_FORMATS = [
-    "%Y-%m-%d %H:%M:%S", // "2006-10-25 14:30:59"
-    "%Y-%m-%d %H:%M",    // "2006-10-25 14:30"
-    "%Y-%m-%d",          // "2006-10-25"
-    "%m/%d/%Y %H:%M:%S", // "10/25/2006 14:30:59"
-    "%m/%d/%Y %H:%M",    // "10/25/2006 14:30"
-    "%m/%d/%Y",          // "10/25/2006"
-    "%m/%d/%y %H:%M:%S", // "10/25/06 14:30:59"
-    "%m/%d/%y %H:%M",    // "10/25/06 14:30"
-    "%m/%d/%y"           // "10/25/06"
+    "yyyy-M-d H:m:s", // "2006-10-25 14:30:59"
+    "yyyy-M-d H:m",   // "2006-10-25 14:30"
+    "yyyy-M-d",       // "2006-10-25"
+    "M/d/yyyy H:m:s", // "10/25/2006 14:30:59"
+    "M/d/yyyy H:m",   // "10/25/2006 14:30"
+    "M/d/yyyy",       // "10/25/2006"
+    "M/d/yy H:m:s",   // "10/25/06 14:30:59"
+    "M/d/yy H:m",     // "10/25/06 14:30"
+    "M/d/yy"          // "10/25/06"
 ]
 
 DateTimeField.prototype = new Field();

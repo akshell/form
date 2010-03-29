@@ -19,7 +19,7 @@ test("MultiWidget and MultiValueField", function()
         if (value)
         {
             var data = value.split(",");
-            var t = time.strptime(data[2], "%Y-%m-%d %H:%M:%S");
+            var t = time.strptime(data[2], "yyyy-M-d H:m:s");
             return [data[0], data[1], new Date(t[0], t[1] -1, t[2], t[3], t[4], t[5])];
         }
         return [null, null, null];
@@ -54,7 +54,7 @@ test("MultiWidget and MultiValueField", function()
         {
             return [dataList[0],
                     dataList[1].join(""),
-                    time.strftime(dataList[2], "%Y-%m-%d %H:%M:%S")].join(",");
+                    time.strftime(dataList[2], "yyyy-MM-dd HH:mm:ss")].join(",");
         }
         return null;
     };

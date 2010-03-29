@@ -889,7 +889,7 @@ test("SplitDateTimeWidget", function()
            "<span><input class=\"pretty\" type=\"text\" name=\"date_0\" value=\"2006-01-10\"><input class=\"pretty\" type=\"text\" name=\"date_1\" value=\"07:30:00\"></span>");
 
     // Use "dateFormat" and "timeFormat" to change the way a value is displayed
-    w = new SplitDateTimeWidget({dateFormat: "%d/%m/%Y", timeFormat: "%H:%M"});
+    w = new SplitDateTimeWidget({dateFormat: "dd/MM/yyyy", timeFormat: "HH:mm"});
     equals(""+w.render("date", new Date(2006, 0, 10, 7, 30)),
            "<span><input type=\"text\" name=\"date_0\" value=\"10/01/2006\"><input type=\"text\" name=\"date_1\" value=\"07:30\"></span>");
 
@@ -912,7 +912,7 @@ test("DateTimeInput", function()
            "<input type=\"text\" name=\"date\" value=\"2007-09-17 12:51:00\">");
 
     // Use "format" to change the way a value is displayed
-    w = new DateTimeInput({format: "%d/%m/%Y %H:%M"});
+    w = new DateTimeInput({format: "dd/MM/yyyy HH:mm"});
     equals(""+w.render("date", d),
            "<input type=\"text\" name=\"date\" value=\"17/09/2007 12:51\">");
     same(w._hasChanged(d, "17/09/2007 12:51"), false);
@@ -934,7 +934,7 @@ test("DateInput", function()
            "<input type=\"text\" name=\"date\" value=\"2007-09-17\">");
 
     // Use "format" to change the way a value is displayed
-    w = new DateInput({format: "%d/%m/%Y"});
+    w = new DateInput({format: "dd/MM/yyyy"});
     equals(""+w.render("date", d),
            "<input type=\"text\" name=\"date\" value=\"17/09/2007\">");
     same(w._hasChanged(d, "17/09/2007"), false);
@@ -958,7 +958,7 @@ test("TimeInput", function()
            "<input type=\"text\" name=\"time\" value=\"13:12:11\">");
 
     // Use "format" to change the way a value is displayed
-    w = new TimeInput({format: "%H:%M"});
+    w = new TimeInput({format: "HH:mm"});
     equals(""+w.render("time", t),
            "<input type=\"text\" name=\"time\" value=\"12:51\">");
     same(w._hasChanged(t, "12:51"), false);

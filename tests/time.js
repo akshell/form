@@ -1,72 +1,59 @@
 module("time");
 
-test("getLocale", function()
-{
-    expect(6);
-    time.locales["en-GB"] = {name: "en-GB"};
-    time.locales["fr"] = {name: "fr"};
-    equals(time.locale, "en", "Default locale name as expected");
-    equals(time.getLocale().name, "en", "Default locale retrieved without arguments");
-    equals(time.getLocale("en").name, "en", "Locale retrieved by language code");
-    equals(time.getLocale("en-GB").name, "en-GB", "Locale retrieved by language and region code");
-    equals(time.getLocale("de").name, "en", "Unknown language code falls back to default");
-    equals(time.getLocale("fr-BE").name, "fr", "Unknown language and region code falls back to language code");
-});
-
 test("strptime", function()
 {
-    expect(58);
+    expect(56);
 
     // Default date formats from django.newforms.fields
     var expected = [2006, 10, 25, 0, 0, 0, 0, 1, -1].join(",");
-    equals(time.strptime("2006-10-25", "%Y-%m-%d").join(","), expected);
-    equals(time.strptime("10/25/2006", "%m/%d/%Y").join(","), expected);
-    equals(time.strptime("10/25/06", "%m/%d/%y").join(","), expected);
-    equals(time.strptime("Oct 25 2006", "%b %d %Y").join(","), expected);
-    equals(time.strptime("Oct 25, 2006", "%b %d, %Y").join(","), expected);
-    equals(time.strptime("25 Oct 2006", "%d %b %Y").join(","), expected);
-    equals(time.strptime("25 Oct, 2006", "%d %b, %Y").join(","), expected);
-    equals(time.strptime("October 25 2006", "%B %d %Y").join(","), expected);
-    equals(time.strptime("October 25, 2006", "%B %d, %Y").join(","), expected);
-    equals(time.strptime("25 October 2006", "%d %B %Y").join(","), expected);
-    equals(time.strptime("25 October, 2006", "%d %B, %Y").join(","), expected);
+    equals(time.strptime("2006-10-25", "yyyy-M-d").join(","), expected);
+    equals(time.strptime("10/25/2006", "M/d/yyyy").join(","), expected);
+    equals(time.strptime("10/25/06", "M/d/yy").join(","), expected);
+    equals(time.strptime("Oct 25 2006", "MMM d yyyy").join(","), expected);
+    equals(time.strptime("Oct 25, 2006", "MMM d, yyyy").join(","), expected);
+    equals(time.strptime("25 Oct 2006", "d MMM yyyy").join(","), expected);
+    equals(time.strptime("25 Oct, 2006", "d MMM, yyyy").join(","), expected);
+    equals(time.strptime("October 25 2006", "MMMM d yyyy").join(","), expected);
+    equals(time.strptime("October 25, 2006", "MMMM d, yyyy").join(","), expected);
+    equals(time.strptime("25 October 2006", "d MMMM yyyy").join(","), expected);
+    equals(time.strptime("25 October, 2006", "d MMMM, yyyy").join(","), expected);
 
     // Default time formats from django.newforms.fields
-    equals(time.strptime("14:30:59", "%H:%M:%S").join(","),
+    equals(time.strptime("14:30:59", "H:m:s").join(","),
            [1900, 1, 1, 14, 30, 59, 0, 1, -1].join(","));
-    equals(time.strptime("14:30", "%H:%M").join(","),
+    equals(time.strptime("14:30", "H:m").join(","),
            [1900, 1, 1, 14, 30, 0, 0, 1, -1].join(","));
 
     // Default datetime formats from django.newforms.fields
-    equals(time.strptime("2006-10-25 14:30:59", "%Y-%m-%d %H:%M:%S").join(","),
+    equals(time.strptime("2006-10-25 14:30:59", "yyyy-M-d H:m:s").join(","),
            [2006, 10, 25, 14, 30, 59, 0, 1, -1].join(","));
-    equals(time.strptime("2006-10-25 14:30", "%Y-%m-%d %H:%M").join(","),
+    equals(time.strptime("2006-10-25 14:30", "yyyy-M-d H:m").join(","),
            [2006, 10, 25, 14, 30, 0, 0, 1, -1].join(","));
-    equals(time.strptime("2006-10-25", "%Y-%m-%d").join(","),
+    equals(time.strptime("2006-10-25", "yyyy-M-d").join(","),
            [2006, 10, 25, 0, 0, 0, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/2006 14:30:59", "%m/%d/%Y %H:%M:%S").join(","),
+    equals(time.strptime("10/25/2006 14:30:59", "M/d/yyyy H:m:s").join(","),
            [2006, 10, 25, 14, 30, 59, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/2006 14:30", "%m/%d/%Y %H:%M").join(","),
+    equals(time.strptime("10/25/2006 14:30", "M/d/yyyy H:m").join(","),
            [2006, 10, 25, 14, 30, 0, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/2006", "%m/%d/%Y").join(","),
+    equals(time.strptime("10/25/2006", "M/d/yyyy").join(","),
            [2006, 10, 25, 0, 0, 0, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/06 14:30:59", "%m/%d/%y %H:%M:%S").join(","),
+    equals(time.strptime("10/25/06 14:30:59", "M/d/yy H:m:s").join(","),
            [2006, 10, 25, 14, 30, 59, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/06 14:30", "%m/%d/%y %H:%M").join(","),
+    equals(time.strptime("10/25/06 14:30", "M/d/yy H:m").join(","),
            [2006, 10, 25, 14, 30, 0, 0, 1, -1].join(","));
-    equals(time.strptime("10/25/06", "%m/%d/%y").join(","),
+    equals(time.strptime("10/25/06", "M/d/yy").join(","),
            [2006, 10, 25, 0, 0, 0, 0, 1, -1].join(","));
 
     // Leap years
-    equals(time.strptime("2004-02-29", "%Y-%m-%d").join(","),
+    equals(time.strptime("2004-02-29", "yyyy-M-d").join(","),
            [2004, 2, 29, 0, 0, 0, 0, 1, -1].join(","),
            "Divisibile by 4, but not by 100");
-    equals(time.strptime("2000-02-29", "%Y-%m-%d").join(","),
+    equals(time.strptime("2000-02-29", "yyyy-M-d").join(","),
            [2000, 2, 29, 0, 0, 0, 0, 1, -1].join(","),
            "Divisibile by 400");
     try
     {
-        time.strptime("2200-02-29", "%Y-%m-%d");
+        time.strptime("2200-02-29", "yyyy-M-d");
     }
     catch (e)
     {
@@ -91,12 +78,12 @@ test("strptime", function()
 
     for (var i = 0, month; month = months[i]; i++)
     {
-        equals(time.strptime("2006-" + month[1] + "-" + month[2], "%Y-%m-%d").join(","),
+        equals(time.strptime("2006-" + month[1] + "-" + month[2], "yyyy-M-d").join(","),
                [2006, parseInt(month[1], 10), parseInt(month[2], 10), 0, 0, 0, 0, 1, -1].join(","),
                month[0] + " has " + month[2] + " days");
         try
         {
-            time.strptime("2006-" + month[1] + "-" + month[3], "%Y-%m-%d");
+            time.strptime("2006-" + month[1] + "-" + month[3], "yyyy-M-d");
         }
         catch (e)
         {
@@ -105,13 +92,13 @@ test("strptime", function()
     }
 
     var boundaries = [
-        ["0", "%m", "month"],
-        ["13", "%m", "month"],
-        ["0", "%d", "day"],
-        ["32", "%d", "day"],
-        ["24", "%H", "hour"],
-        ["60", "%M", "minute"],
-        ["60", "%S", "second"]
+        ["0", "M", "month"],
+        ["13", "M", "month"],
+        ["0", "d", "day"],
+        ["32", "d", "day"],
+        ["24", "H", "hour"],
+        ["60", "m", "minute"],
+        ["60", "s", "second"]
     ];
 
     for (var i = 0, boundary; boundary = boundaries[i]; i++)
@@ -125,49 +112,16 @@ test("strptime", function()
             ok(true, boundary[0] + " is not a valid " + boundary[2]);
         }
     }
-
-    // Invalid format strings
-    try
-    {
-        time.strptime("2006-10-25", "%Y-%m-%d%");
-    }
-    catch (e)
-    {
-        ok(true, "Hanging % throws an Error");
-    }
-
-    try
-    {
-        time.strptime("2006-10-25", "%Y-%m-%d%q");
-    }
-    catch (e)
-    {
-        ok(true, "Invalid directive throws an Error");
-    }
 });
 
 test("strftime", function()
 {
-    expect(6);
+    expect(3);
 
     // Default date/time format
-    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%Y-%m-%d %H:%M:%S"),
+    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "yyyy-MM-dd HH:mm:ss"),
            "2006-10-25 14:30:59");
 
-    // Invalid format strings
-    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%Y-%m-%d %q %H:%M:%S"),
-           "2006-10-25  14:30:59",
-           "Invalid directives are silently dropped");
-    try
-    {
-        time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%Y-%m-%d %H:%M:%S%")
-    }
-    catch(e)
-    {
-        ok(true, "Hanging % throws an Error");
-    }
-
-    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%a %d %b"), "Wed 25 Oct");
-    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%A %d %B"), "Wednesday 25 October");
-    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "%w"), "3");
+    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "ddd dd MMM"), "Wed 25 Oct");
+    equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "dddd dd MMMM"), "Wednesday 25 October");
 });

@@ -106,9 +106,9 @@ var tests = new Module('tests');
   });
 
 
-test = function () {
+test = function (source) {
   testCount = 0;
-  var result = ak.test(tests);
+  var result = ak.test(source || tests);
   if (testCount != 0)
     result += '\nFAILED testCount=' + testCount;
   return result;

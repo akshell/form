@@ -207,7 +207,7 @@ test("DateField", function()
     same(f.clean(""), null);
 
     // DateField accepts an optional inputFormats parameter
-    var f = new DateField({inputFormats: ["%Y %m %d"]});
+    var f = new DateField({inputFormats: ["yyyy M d"]});
     same(f.clean(new Date(2006, 9, 25)).valueOf(), expected);
     same(f.clean(new Date(2006, 9, 25, 14, 30)).valueOf(), expected);
     same(f.clean("2006 10 25").valueOf(), expected);
@@ -231,7 +231,7 @@ test("TimeField", function()
     try { f.clean("1:24 p.m."); } catch (e) { equals(ve(e), "Enter a valid time."); }
 
     // TimeField accepts an optional inputFormats parameter
-    var f = new TimeField({inputFormats: ["%I:%M %p"]});
+    var f = new TimeField({inputFormats: ["h:m tt"]});
     same(f.clean(new Date(1900, 0, 1, 14, 25)).valueOf(), new Date(1900, 0, 1, 14, 25).valueOf());
     same(f.clean(new Date(1900, 0, 1, 14, 25, 59)).valueOf(), new Date(1900, 0, 1, 14, 25, 59).valueOf());
     same(f.clean("4:25 AM").valueOf(), new Date(1900, 0, 1, 4, 25).valueOf());
@@ -266,7 +266,7 @@ test("DateTimeField", function()
     try { f.clean("2006-10-25 4:30 p.m."); } catch (e) { equals(ve(e), "Enter a valid date/time."); }
 
     // DateField accepts an optional input_formats parameter
-    f = new DateTimeField({inputFormats: ["%Y %m %d %I:%M %p"]});
+    f = new DateTimeField({inputFormats: ["yyyy M d h:m tt"]});
     same(f.clean(new Date(2006, 9, 25)).valueOf(), new Date(2006, 9, 25).valueOf());
     same(f.clean(new Date(2006, 9, 25, 14, 30)).valueOf(), new Date(2006, 9, 25, 14, 30).valueOf());
     same(f.clean(new Date(2006, 9, 25, 14, 30, 59)).valueOf(), new Date(2006, 9, 25, 14, 30, 59).valueOf());

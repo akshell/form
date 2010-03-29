@@ -325,7 +325,7 @@ function DateInput(kwargs)
 
 DateInput.prototype = new Input();
 DateInput.prototype.inputType = "text";
-DateInput.prototype.format = "%Y-%m-%d"; // "2006-10-25"
+DateInput.prototype.format = "yyyy-MM-dd"; // "2006-10-25"
 
 DateInput.prototype._formatValue = function(value)
 {
@@ -373,7 +373,7 @@ function DateTimeInput(kwargs)
 
 DateTimeInput.prototype = new Input();
 DateTimeInput.prototype.inputType = "text";
-DateTimeInput.prototype.format = "%Y-%m-%d %H:%M:%S"; // "2006-10-25 14:30:59"
+DateTimeInput.prototype.format = "yyyy-MM-dd HH:mm:ss"; // "2006-10-25 14:30:59"
 
 DateTimeInput.prototype._formatValue = function(value)
 {
@@ -421,7 +421,7 @@ function TimeInput(kwargs)
 
 TimeInput.prototype = new Input();
 TimeInput.prototype.inputType = "text";
-TimeInput.prototype.format = "%H:%M:%S" // "14:30:59"
+TimeInput.prototype.format = "HH:mm:ss" // "14:30:59"
 
 TimeInput.prototype._formatValue = function(value)
 {

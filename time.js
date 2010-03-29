@@ -1,156 +1,12 @@
 /**
- * @fileOverview Utilities for working with times and locales.
+ * @fileOverview Utilities for working with times.
  */
 
 /** @namespace */
 var time = {};
 
-/**
- * Default locale name - this must always contain the name of a locale name
- * which is available in {@link time.locales}, as it will be used in cases
- * where when a locale was not specified or a specified locale could not be
- * found.
- *
- * @type String
- */
-time.locale = "en";
 
-/**
- * Maps locale names to locale objects.
- *
- * @type Object
- */
-time.locales =
-{
-    "en":
-    {
-        name: "en",
-        a: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        A: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
-            "Saturday"],
-        AM: "AM",
-        b: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct",
-            "Nov", "Dec"],
-        B: ["January", "February", "March", "April", "May", "June", "July",
-            "August", "September", "October", "November", "December"],
-        PM: "PM"
-    }
-};
-
-/**
- * Retrieves the locale with the given name, falling back to just the language
- * code finally to the default locale if a locale can't be found; retrieves the
- * default locale when called without arguments.
- *
- * @param {String} [locale] a locale name, which can consist of a language code
- *                          (such as <code>"en"</code>) or a language code and
- *                          region code (such as <code>"en-GB"</code>).
- *
- * @return a locale object.
- * @type Object
- */
-time.getLocale = function(locale)
-{
-    if (locale)
-    {
-        // Happy path - the given locale exists
-        if (typeof time.locales[locale] != "undefined")
-        {
-            return time.locales[locale];
-        }
-        else if (locale.length > 2)
-        {
-            // If we appear to have more than a language code, try the language
-            // code on its own.
-            var languageCode = locale.substring(0, 2);
-            if (typeof time.locales[languageCode] != "undefined")
-            {
-                return time.locales[languageCode];
-            }
-        }
-    }
-
-    // Default is to fall back to the locale specified in time.locale
-    return time.locales[time.locale];
-};
-
-/**
- * A partial implementation of <code>strptime</code>, which parses time details
- * from a string, based on a format string.
- * <p>
- * This implementation largely takes its cue from the documentation for Python's
- * <code>time</code> module, as documented at
- * http://docs.python.org/lib/module-time.html; with the exception of seconds
- * formatting, which is restricted to the range [00,59] rather than [00,61].
- * <p>
- * Supported formatting directives are:
- * <table>
- * <thead>
- *   <tr>
- *     <th>Directive</th>
- *     <th>Meaning</th>
- *   </tr>
- * </thead>
- * <tbody>
- *   <tr>
- *     <td><code>%b</code></td>
- *     <td>Locale's abbreviated month name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%B</code></td>
- *     <td>Locale's full month name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%d</code></td>
- *     <td>Day of the month as a decimal number [01,31].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%H</code></td>
- *     <td>Hour (24-hour clock) as a decimal number [00,23].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%I</code></td>
- *     <td>Hour (12-hour clock) as a decimal number [00,12].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%m</code></td>
- *     <td>Month as a decimal number [01,12].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%M</code></td>
- *     <td>Minute as a decimal number [00,59].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%p</code></td>
- *     <td>
- *       Locale's equivalent of either AM or PM (only affects the output hour
- *       field if the <code>%I</code> directive is used to parse the hour).
- *     </td>
- *   </tr>
- *   <tr>
- *     <td><code>%S</code></td>
- *     <td>Second as a decimal number [00,59].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%y</code></td>
- *     <td>Year without century as a decimal number [00,99].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%Y</code></td>
- *     <td>Year with century as a decimal number.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%%</code></td>
- *     <td>A literal "<tt>%</tt>" character.</td>
- *   </tr>
- * </tbody>
- * </table>
- *
- * @param {String} format a string specifying formatting directives.
- * @param {Object} locale the locale object to be used to create this parser.
- * @constructor
- */
-time.TimeParser = function(format, locale)
+time.TimeParser = function(format)
 {
     /**
      * The original formatting string which was given.
@@ -161,50 +17,16 @@ time.TimeParser = function(format, locale)
 
     // Normalise whitespace before further processing
     format = format.split(/(?:\s|%t|%n)+/).join(" ");
-    var pattern = [];
     var expected = [];
-    var c;
 
-    for (var i = 0, l = format.length; i < l; i++)
-    {
-        c = format.charAt(i);
-        if (c == "%")
-        {
-            if (i == l - 1)
-            {
-                throw new Error("strptime format ends with raw %");
-            }
-
-            c = format.charAt(++i);
-            var directiveType = typeof time.TimeParser.DIRECTIVE_PATTERNS[c];
-            if (directiveType == "undefined")
-            {
-                throw new Error("strptime format contains a bad directive: '%" +
-                                c + "'")
-            }
-            else if (directiveType == "function")
-            {
-                pattern[pattern.length] =
-                    time.TimeParser.DIRECTIVE_PATTERNS[c](locale);
-            }
-            else
-            {
-                pattern[pattern.length] = time.TimeParser.DIRECTIVE_PATTERNS[c];
-            }
-            expected = expected.concat(time.TimeParser.EXPECTED_DATA_TYPES[c]);
-        }
-        else
-        {
-            pattern[pattern.length] = c;
-        }
-    }
-
-    /**
-     * The locale object which was used to create this parser.
-     *
-     * @type Object
-     */
-    this.locale = locale;
+    var pattern = format.replace(
+        /(d{1,4}|M{1,4}|yyyy|yy|HH|H|hh|h|mm|m|ss|s|tt)/g,
+        function(str) {
+            if (str.length == 2 && 'MdHhms'.indexOf(str[0]) != -1)
+                str = str[0];
+            expected.push(str);
+            return time.TimeParser.DIRECTIVE_PATTERNS[str];
+        });
 
     /**
      * The regular expression generated for the format this parser was created
@@ -212,7 +34,7 @@ time.TimeParser = function(format, locale)
      *
      * @type RegExp
      */
-    this.regexp = new RegExp("^" + pattern.join("") + "$");
+    this.regexp = new RegExp("^" + pattern + "$");
 
     /**
      * A list of expected formatting directives code which will be matched by
@@ -226,54 +48,25 @@ time.TimeParser = function(format, locale)
 
 /**
  * Maps directive codes to regular expression pattern fragments which will
- * capture the data the directive corresponds to, or in the case of
- * locale-dependent directives, a function which takes a locale and generates
- * a regular expression pattern fragment.
+ * capture the data the directive corresponds to.
  *
  * @type Object
  */
 time.TimeParser.DIRECTIVE_PATTERNS =
 {
-    // Locale's abbreviated month name
-    "b": function(l) { return "(" + l.b.join("|") + ")"; },
-    // Locale's full month name
-    "B": function(l) { return "(" + l.B.join("|") + ")"; },
-    // Locale's equivalent of either AM or PM.
-    "p": function(l) { return "(" + l.AM + "|" + l.PM + ")"; },
-
-    "d": "(\\d\\d?)",      // Day of the month as a decimal number [01,31]
-    "H": "(\\d\\d?)",      // Hour (24-hour clock) as a decimal number [00,23]
-    "I": "(\\d\\d?)",      // Hour (12-hour clock) as a decimal number [01,12]
-    "m": "(\\d\\d?)",      // Month as a decimal number [01,12]
-    "M": "(\\d\\d?)",      // Minute as a decimal number [00,59]
-    "S": "(\\d\\d?)",      // Second as a decimal number [00,59]
-    "y": "(\\d\\d?)",      // Year without century as a decimal number [00,99]
-    "Y": "(\\d\\d\\d\\d)", // Year with century as a decimal number
-    "%": "%"               // A literal "%" character
+    MMMM: '(' + ak.culture.months.join('|') + ')',
+    MMM: '(' + ak.culture.shortMonths.join('|') + ')',
+    tt: "({0}|{1})".format(ak.culture.am, ak.culture.pm),
+    d: "(\\d\\d?)",        // Day of the month as a decimal number [1,31]
+    H: "(\\d\\d?)",        // Hour (24-hour clock) as a decimal number [0,23]
+    h: "(\\d\\d?)",        // Hour (12-hour clock) as a decimal number [1,12]
+    M: "(\\d\\d?)",        // Month as a decimal number [1,12]
+    m: "(\\d\\d?)",        // Minute as a decimal number [0,59]
+    s: "(\\d\\d?)",        // Second as a decimal number [0,59]
+    yy: "(\\d\\d?)",       // Year without century as a decimal number [00,99]
+    yyyy: "(\\d\\d\\d\\d)" // Year with century as a decimal number
 };
 
-/**
- * Maps directive codes to expected captured directive codes for each
- * directive - specified as lists as some directives can contain multiple
- * data items.
- *
- * @type Object
- */
-time.TimeParser.EXPECTED_DATA_TYPES =
-{
-    "b": ["b"],
-    "B": ["B"],
-    "d": ["d"],
-    "H": ["H"],
-    "I": ["I"],
-    "m": ["m"],
-    "M": ["M"],
-    "p": ["p"],
-    "S": ["S"],
-    "y": ["y"],
-    "Y": ["Y"],
-    "%": []
-};
 
 time.TimeParser.prototype =
 {
@@ -364,13 +157,13 @@ time.TimeParser.prototype =
         var time = [1900, 1, 1, 0, 0, 0, 0, 1, -1];
 
         // Extract year
-        if (typeof data["Y"] != "undefined")
+        if (typeof data["yyyy"] != "undefined")
         {
-            time[0] = parseInt(data["Y"], 10);
+            time[0] = parseInt(data["yyyy"], 10);
         }
-        else if (typeof data["y"] != "undefined")
+        else if (typeof data["yy"] != "undefined")
         {
-            var year = parseInt(data["y"], 10);
+            var year = parseInt(data["yy"], 10);
             if (year < 68)
             {
                 year = 2000 + year;
@@ -383,22 +176,22 @@ time.TimeParser.prototype =
         }
 
         // Extract month
-        if (typeof data["m"] != "undefined")
+        if (typeof data["M"] != "undefined")
         {
-            var month = parseInt(data["m"], 10);
+            var month = parseInt(data["M"], 10);
             if (month < 1 || month > 12)
             {
                 throw new Error("Month is out of range: " + month);
             }
             time[1] = month;
         }
-        else if (typeof data["B"] != "undefined")
+        else if (typeof data["MMMM"] != "undefined")
         {
-            time[1] = this._indexOf(data["B"], this.locale.B) + 1;
+            time[1] = this._indexOf(data["MMMM"], ak.culture.months) + 1;
         }
-        else if (typeof data["b"] != "undefined")
+        else if (typeof data["MMM"] != "undefined")
         {
-            time[1] = this._indexOf(data["b"], this.locale.b) + 1;
+            time[1] = this._indexOf(data["MMM"], ak.culture.shortMonths) + 1;
         }
 
         // Extract day of month
@@ -422,9 +215,9 @@ time.TimeParser.prototype =
             }
             time[3] = hour;
         }
-        else if (typeof data["I"] != "undefined")
+        else if (typeof data["h"] != "undefined")
         {
-            var hour = parseInt(data["I"], 10);
+            var hour = parseInt(data["h"], 10);
             if (hour < 1 || hour > 12)
             {
                 throw new Error("Hour is out of range: " + hour);
@@ -439,9 +232,9 @@ time.TimeParser.prototype =
 
             time[3] = hour;
 
-            if (typeof data["p"] != "undefined")
+            if (typeof data["tt"] != "undefined")
             {
-                if (data["p"] == this.locale.PM)
+                if (data["tt"] == ak.culture.pm)
                 {
                     // We've already handled the midnight special case, so it's
                     // safe to bump the time by 12 hours without further checks.
@@ -451,9 +244,9 @@ time.TimeParser.prototype =
         }
 
         // Extract minute
-        if (typeof data["M"] != "undefined")
+        if (typeof data["m"] != "undefined")
         {
-            var minute = parseInt(data["M"], 10);
+            var minute = parseInt(data["m"], 10);
             if (minute > 59)
             {
                 throw new Error("Minute is out of range: " + minute);
@@ -462,9 +255,9 @@ time.TimeParser.prototype =
         }
 
         // Extract seconds
-        if (typeof data["S"] != "undefined")
+        if (typeof data["s"] != "undefined")
         {
-            var second = parseInt(data["S"], 10);
+            var second = parseInt(data["s"], 10);
             if (second > 59)
             {
                 throw new Error("Second is out of range: " + second);
@@ -499,168 +292,13 @@ time.TimeParser.prototype =
     }
 };
 
-/**
- * Parses time details from a string, based on a format string.
- *
- * @param {String} input the time string to be parsed.
- * @param {String} format the format to attempt to parse - see
- *                        {@link time.TimeParser} for further details.
- * @param {String} [locale] a locale name.
- *
- * @return a list of 9 integers, each corresponding to a time field - see
- *         {@link time.TimeParser#parse()} for further details.
- * @type Array
- */
-time.strptime = function(input, format, locale)
+
+time.strptime = function(input, format)
 {
-    return new time.TimeParser(format, time.getLocale(locale)).parse(input);
+    return new time.TimeParser(format).parse(input);
 };
 
-/**
- * A partial implementation of <code>strftime</code>, which formats a date
- * according to a format string.
- * <p>
- * Supported formatting directives are:
- * <table>
- * <thead>
- *   <tr>
- *     <th>Directive</th>
- *     <th>Meaning</th>
- *   </tr>
- * </thead>
- * <tbody>
- *   <tr>
- *     <td><code>%a</code></td>
- *     <td>Locale's abbreviated weekday name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%A</code></td>
- *     <td>Locale's full weekday name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%b</code></td>
- *     <td>Locale's abbreviated month name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%B</code></td>
- *     <td>Locale's full month name.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%d</code></td>
- *     <td>Day of the month as a decimal number [01,31].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%H</code></td>
- *     <td>Hour (24-hour clock) as a decimal number [00,23].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%m</code></td>
- *     <td>Month as a decimal number [01,12].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%M</code></td>
- *     <td>Minute as a decimal number [00,59].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%S</code></td>
- *     <td>Second as a decimal number [00,59].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%w</code></td>
- *     <td>Weekday as a decimal number [0(Sunday),6].</td>
- *   </tr>
- *   <tr>
- *     <td><code>%Y</code></td>
- *     <td>Year with century as a decimal number.</td>
- *   </tr>
- *   <tr>
- *     <td><code>%%</code></td>
- *     <td>A literal "<tt class="character">%</tt>" character.</td>
- *   </tr>
- * </tbody>
- * </table>
- *
- * @param {Date} date the date to be formatted.
- * @param {String} format a string specifying how the date should be formatted.
- * @param {String} [locale] a locale name - if not supplied, the default locale
- *                          will be used.
- *
- * @return a formatted version of the given date.
- * @type String
- * @function
- */
-time.strftime = function()
-{
-    /**
-     * Pads a number to a given size with a given string.
-     *
-     * @param {Number} number the number to be padded.
-     * @param {Number} size the size the given number should be padded to.
-     * @param {String} [padding] the string to be used to pad the number -
-     *                           defaults to <code>"0"</code>.
-     *
-     * @return a padded version of the given number.
-     * @type String
-     */
-    function pad(number, size, padding)
-    {
-        var padded = "" + number;
-        padding = padding || "0";
-        while (padded.length < size)
-        {
-            padded = padding + padded;
-        }
-        return padded;
-    };
 
-    /**
-     * Maps directive codes to functions which take the date to be formatted and
-     * locale details (if required), returning an appropriate formatted value.
-     */
-    var directives =
-    {
-        "a": function(d, l) { return l.a[d.getDay()]; },
-        "A": function(d, l) { return l.A[d.getDay()]; },
-        "b": function(d, l) { return l.b[d.getMonth()]; },
-        "B": function(d, l) { return l.B[d.getMonth()]; },
-        "d": function(d) { return pad(d.getDate(), 2); },
-        "H": function(d) { return pad(d.getHours(), 2); },
-        "M": function(d) { return pad(d.getMinutes(), 2); },
-        "m": function(d) { return pad(d.getMonth() + 1, 2); },
-        "S": function(d) { return pad(d.getSeconds(), 2); },
-        "w": function(d) { return d.getDay(); },
-        "Y": function(d) { return d.getFullYear(); },
-        "%": function(d) { return "%"; }
-    };
-
-    return function(date, format, locale)
-    {
-        locale = time.getLocale(locale);
-        var formatted = [];
-        var c;
-
-        for (var i = 0, l = format.length; i < l; i++)
-        {
-            c = format.charAt(i);
-            if (c == "%")
-            {
-                if (i == l - 1)
-                {
-                    throw new Error("strftime format ends with raw %");
-                }
-
-                c = format.charAt(++i);
-                if (typeof directives[c] == "function")
-                {
-                    formatted[formatted.length] = directives[c](date, locale);
-                }
-            }
-            else
-            {
-                formatted[formatted.length] = c;
-            }
-        }
-
-        return formatted.join("");
-    }
-}();
+time.strftime = function (date, format) {
+    return date.toString(format);
+};
