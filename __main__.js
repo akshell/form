@@ -25,9 +25,10 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 ak.use('ak', '0.1');
-this.update(ak);
+ak.update(this, ak);
 
 include('__init__.js');
+update(this, form, form._internal);
 
 
 var testCaseClass;

@@ -25,10 +25,97 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-ak.include('dom_builder.js');
-ak.include('util.js');
-ak.include('time.js');
-ak.include('widgets.js');
-ak.include('fields.js');
-ak.include('forms.js');
-ak.include('formsets.js');
+form = new ak.Module('form', '0.1');
+
+(function ()
+{
+  var dirPath = ak.include.path.substr(0, ak.include.path.lastIndexOf('/') + 1);
+
+
+  var names = [
+    'dom_builder',
+    'util',
+    'time',
+    'widgets',
+    'fields',
+    'forms',
+    'formsets'
+  ];
+
+
+  function read(name) {
+    var path = dirPath + name + '.js';
+    return (ak.app.name == 'form'
+            ? ak.readCode(path)
+            : ak.readCode('form', path));
+  }
+
+
+  for (var i = 0; i < names.length; ++i)
+    eval(read(names[i]));
+
+
+  [
+    'BaseFormSet',
+    'BooleanField',
+    'CharField',
+    'CheckboxInput',
+    'CheckboxSelectMultiple',
+    'ChoiceField',
+    'ComboField',
+    'DateField',
+    'DateInput',
+    'DateTimeField',
+    'DateTimeInput',
+    'DecimalField',
+    'EmailField',
+    'ErrorList',
+    'FileField',
+    'FileInput',
+    'FloatField',
+    'Form',
+    'HiddenInput',
+    'IPAddressField',
+    'ImageField',
+    'IntegerField',
+    'MultiValueField',
+    'MultiWidget',
+    'MultipleChoiceField',
+    'MultipleHiddenInput',
+    'NullBooleanField',
+    'NullBooleanSelect',
+    'PasswordInput',
+    'RadioFieldRenderer',
+    'RadioSelect',
+    'RegexField',
+    'Select',
+    'SelectMultiple',
+    'SlugField',
+    'SplitDateTimeField',
+    'SplitDateTimeWidget',
+    'SplitHiddenDateTimeWidget',
+    'TextInput',
+    'Textarea',
+    'TimeField',
+    'TimeInput',
+    'TypedChoiceField',
+    'URLField',
+    'ValidationError'
+  ].forEach(function (name) { form[name] = eval(name); });
+
+
+  form.setHidden('_internal', {});
+
+
+  [
+    'DOMBuilder',
+    'contains',
+    'extendObject',
+    'formFactory',
+    'formatString',
+    'formsetFactory',
+    'prettyName',
+    'time'
+  ].forEach(function (name) { form._internal[name] = eval(name); });
+
+})();
