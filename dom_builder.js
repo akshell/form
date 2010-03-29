@@ -226,7 +226,7 @@ var DOMBuilder = (function()
          * <dt>XHTML</dt><dd>Create XHTML Strings</dd>
          * </dl>
          */
-        mode: "DOM",
+        mode: "HTML",
 
         /**
          * Adds element creation functions to a given context object, or to a
