@@ -100,7 +100,8 @@ form = new ak.Module('form', '0.1');
     'TimeInput',
     'TypedChoiceField',
     'URLField',
-    'ValidationError'
+    'ValidationError',
+    'formsetFactory'
   ].forEach(function (name) { form[name] = eval(name); });
 
 
@@ -113,7 +114,6 @@ form = new ak.Module('form', '0.1');
     'extendObject',
     'formFactory',
     'formatString',
-    'formsetFactory',
     'prettyName',
     'time'
   ].forEach(function (name) { form._internal[name] = eval(name); });
