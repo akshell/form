@@ -300,33 +300,7 @@ function Form(kwargs)
     this._errors = null; // Stores errors after clean() has been called
     this._changedData = null;
 
-    // TODO Basefields/deep copying? Assume subclasses will set fields in their
-    //      constructor for now, but is there a nice way to get anything like
-    //      the more declarative syntax Python's metaclassing gives Django?
-
-    // TODO Is there any hope of ever replacing __getitem__ properly?
-    /*
-    if (typeof this.fields != "undefined")
-    {
-        for (var name in this.fields)
-        {
-            if (!this.fields.hasOwnProperty(name))
-            {
-                continue;
-            }
-
-            this.__defineGetter__(name, (function(fieldName)
-            {
-                return function()
-                {
-                    return new BoundField(this,
-                                          this.fields[fieldName],
-                                          fieldName);
-                };
-            })(name));
-        }
-    }
-    */
+    this.fields = {}.update(this.fields || {});
 }
 
 /** Property under which non-field-specific errors are stored. */
@@ -1016,125 +990,39 @@ Form.prototype.visibleFields = function()
     });
 };
 
-/**
- * Creates a new form constructor, eliminating some of the steps required when
- * manually defining a new form class and wiring up convenience hooks into the
- * form initialisation process.
- *
- * @param {Object} kwargs arguments defining options for the created Form
- *                        constructor - all arguments other than those defined
- *                        below will be added to the new form constructor's
- *                        prototype, so this object can also be used to define
- *                        new methods on the resulting form, such as custom
- *                        <code>clean</code> and <code>cleanFIELD_NAME</code>
- *                        methods.
- * @config {Function} fields a function which returns an object containing form
- *                           fields, which will be invoked each time a new form
- *                           instance is created - an Error will be thrown if
- *                           this Function is not provided.
- * @config {Function} [form] the Form constructor which will provide the
- *                           prototype for the new Form constructor - defaults
- *                           to {@link Form}.
- * @config {Function} [preInit] if provided, this function will be invoked with
- *                              any keyword arguments which are passed when a
- *                              new instance of the form is being created,
- *                              before fields have been created and the
- *                              prototype constructor called - if a value is
- *                              returned from the function, it will be used as
- *                              the kwargs object for further processing, so
- *                              typical usage of this function would be to set
- *                              default kwarg arguments or pop and store kwargs
- *                              as properties of the form object being created.
- * @config {Function} [postInit] if provided, this function will be invoked with
- *                               any keyword arguments which are passed when a
- *                               new instance of the form is being created,
- *                               after fields have been created and the
- *                               prototype constructor called - typical usage of
- *                               this function would be to dynamically alter the
- *                               form fields which have just been created or to
- *                               add/remove fields.
- * @type Function
- */
-function formFactory(kwargs)
-{
-    if (typeof kwargs.fields != "function")
-    {
-        throw new Error("You must provide a function named 'fields'");
-    }
 
-    kwargs = extendObject({
-       form: Form, preInit: null, postInit: null
-    }, kwargs || {});
-
-    // Create references to special functions which will be closed over by the
-    // new form constructor.
-    var form = kwargs.form;
-    var createFields = kwargs.fields;
-    var preInit = kwargs.preInit;
-    var postInit = kwargs.postInit;
-
-    /** @ignore */
-    var formConstructor = function(kwargs)
-    {
-        if (preInit !== null)
+Form.instances(
+    Function.subclass(
         {
-            // If the preInit function returns anything, use the returned value
-            // as the kwargs object for further processing.
-            kwargs = preInit.call(this, kwargs) || kwargs;
-        }
-
-        // Any pre-existing fields will have been created by a form which uses
-        // this form as its base. As such, pre-existing fields should overwrite
-        // any fields with the same name and pre-existing fields with new names
-        // should appear after fields created by this form.
-        this.fields = extendObject(createFields.call(this), this.fields || {});
-
-        // Tell whatever number of parents we have to do their instantiation bit
-        if (form instanceof Array)
-        {
-            // We loop backwards because fields are instantiated "bottom up"
-            for (var i = form.length - 1; i >= 0; i--)
+            subclass: function (/* [constructor] [, prototype] */)
             {
-                form[i].call(this, kwargs);
+                var prototype = arguments[
+                    typeof(arguments[0]) == 'function' ? 1 : 0];
+                if (prototype)
+                {
+                    var fields = extendObject({},
+                                              this.prototype.fields || {},
+                                              prototype.fields || {});
+
+                    var mixins = (prototype.mixins ||
+                                  prototype.mixin ? [prototype.mixin] : []);
+
+                    for (var i = 0; i < mixins.length; ++i)
+                    {
+                        extendObject(prototype, mixins[i].prototype);
+                        extendObject(fields, mixins[i].prototype.fields || {});
+                    }
+
+                    for (var name in prototype)
+                    {
+                        if (prototype[name] instanceof Field)
+                        {
+                            fields[name] = prototype[name];
+                            delete prototype[name];
+                        }
+                    }
+                    prototype.fields = fields;
+                }
+                return Function.prototype.subclass.apply(this, arguments);
             }
-        }
-        else
-        {
-            form.call(this, kwargs);
-        }
-
-        if (postInit !== null)
-        {
-            postInit.call(this, kwargs);
-        }
-    };
-
-    // Remove special functions from kwargs, as they will now be used to add
-    // properties to the prototype.
-    delete kwargs.form;
-    delete kwargs.fields;
-    delete kwargs.preInit;
-    delete kwargs.postInit;
-
-    if (form instanceof Array)
-    {
-        // *Really* inherit from the first Form we were passed
-        formConstructor.prototype = new form[0]();
-        // Borrow methods from any additional Forms this is a bit of a hack to
-        // fake multiple inheritance. We can only use instanceof for the form we
-        // really inherited from, but we can access methods from all our
-        // parents.
-        for (var i = 1, l = form.length; i < l; i++)
-        {
-            extendObject(formConstructor.prototype, form[i].prototype);
-        }
-        // Anything else defined in kwargs should take precedence
-        extendObject(formConstructor.prototype, kwargs);
-    }
-    else
-    {
-        formConstructor.prototype = extendObject(new form(), kwargs);
-    }
-
-    return formConstructor;
-}
+        }));

@@ -62,7 +62,6 @@ return {
     // forms.js
     BoundField: BoundField,
     Form: Form,
-    formFactory: formFactory,
     // formsets.js
     ManagementForm: ManagementForm,
     BaseFormSet: BaseFormSet,

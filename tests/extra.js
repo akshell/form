@@ -69,11 +69,9 @@ test("MultiWidget and MultiValueField", function()
     try { f.clean(["some text", ["JP"]]); }
         catch (e) { equals(e.messages.errors[0], "This field is required."); }
 
-    var ComplexFieldForm = formFactory({fields: function() {
-        return {
-            field1: new ComplexField({widget: w})
-        };
-    }});
+    var ComplexFieldForm = Form.subclass({
+        field1: new ComplexField({widget: w})
+    });
     f = new ComplexFieldForm();
     equals(""+f,
 "<tr><th><label for=\"id_field1_0\">Field1:</label></th><td><div class=\"complex\"><input type=\"text\" name=\"field1_0\" id=\"id_field1_0\"><select name=\"field1_1\" multiple=\"multiple\" id=\"id_field1_1\">\n" +

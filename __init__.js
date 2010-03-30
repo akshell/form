@@ -112,7 +112,6 @@ form = new ak.Module('form', '0.1');
     'DOMBuilder',
     'contains',
     'extendObject',
-    'formFactory',
     'formatString',
     'prettyName',
     'time'

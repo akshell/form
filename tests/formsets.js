@@ -6,16 +6,14 @@ module("formsets");
 // FormSet allows us to use multiple instance of the same form on 1 page.
 // For now, the best way to create a FormSet is by using the formsetFactory
 // function.
-var Choice = formFactory({fields: function() {
-    return {
-        choice: new CharField(),
-        votes: new IntegerField()
-    };
-}});
+var Choice = Form.subclass({
+    choice: new CharField(),
+    votes: new IntegerField()
+});
 
-var FavouriteDrinkForm = formFactory({fields: function() {
-    return { name: new CharField() };
-}});
+var FavouriteDrinkForm = Form.subclass({
+    name: new CharField()
+});
 
 function allAsUL(forms)
 {
@@ -296,9 +294,9 @@ test("FormSets with deletion", function()
     // If we fill a form with something and then we check the canDelete checkbox
     // for that form, that form's errors should not make the entire formset
     // invalid since it's going to be deleted.
-    var CheckForm = formFactory({fields: function() {
-        return { field: new IntegerField({minValue: 100}) };
-    }});
+    var CheckForm = Form.subclass({
+        field: new IntegerField({minValue: 100})
+    });
 
     data = {
         "check-TOTAL_FORMS": "3",
