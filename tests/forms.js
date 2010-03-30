@@ -181,7 +181,7 @@ test("Form", function()
     // If it's a string that contains "%(name)s", js-forms will use that as a
     // format string into which the field's name will be inserted. It will also
     // put a <label> around the human-readable labels for a field.
-    p = new Person({autoId: "%(name)s_id"});
+    p = new Person({autoId: "{0}_id"});
     equals(p.asTable(),
 "<tr><th><label for=\"first_name_id\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"first_name_id\"></td></tr>\n" +
 "<tr><th><label for=\"last_name_id\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"last_name_id\"></td></tr>\n" +
@@ -437,7 +437,7 @@ test("Form", function()
     // Regarding autoId and <label>, RadioSelect is a special case. Each radio
     // button gets a distinct ID, formed by appending an underscore plus the
     // button's zero-based index.
-    f = new FrameworkForm({autoId: "id_%(name)s"});
+    f = new FrameworkForm({autoId: "id_{0}"});
     equals(""+f.boundField("language"),
 "<ul>\n" +
 "<li><label for=\"id_language_0\"><input id=\"id_language_0\" type=\"radio\" name=\"language\" value=\"P\"> Python</label></li>\n" +
@@ -538,7 +538,7 @@ test("Form", function()
     // Regarding autoId, CheckboxSelectMultiple is another special case. Each
     // checkbox gets a distinct ID, formed by appending an underscore plus the
     // checkbox's zero-based index.
-    f = new SongForm({autoId: "%(name)s_id"});
+    f = new SongForm({autoId: "{0}_id"});
     equals(""+f.boundField("composers"),
 "<ul>\n" +
 "<li><label for=\"composers_id_0\"><input id=\"composers_id_0\" type=\"checkbox\" name=\"composers\" value=\"J\"> John Lennon</label></li>\n" +
@@ -955,7 +955,7 @@ test("Hidden inputs", function()
 "<p>Birthday: <input type=\"text\" name=\"birthday\"><input type=\"hidden\" name=\"hidden_text\"></p>");
 
     // With autoId set, a HiddenInput still gets an id, but it doesn't get a label.
-    p = new Person({autoId: "id_%(name)s"});
+    p = new Person({autoId: "id_{0}"});
     equals(""+p,
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"id_first_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"id_last_name\"></td></tr>\n" +
@@ -1063,7 +1063,7 @@ test("Labels", function()
     equals(""+p.asUL(),
 "<li> <input maxlength=\"10\" type=\"text\" name=\"username\"></li>\n" +
 "<li>Password1: <input type=\"password\" name=\"password1\"></li>");
-    p = new UserRegistration({autoId: "id_%(name)s"});
+    p = new UserRegistration({autoId: "id_{0}"});
     equals(""+p.asUL(),
 "<li> <input maxlength=\"10\" type=\"text\" name=\"username\" id=\"id_username\"></li>\n" +
 "<li><label for=\"id_password1\">Password1:</label> <input type=\"password\" name=\"password1\" id=\"id_password1\"></li>");
@@ -1080,7 +1080,7 @@ test("Labels", function()
     equals(""+p.asUL(),
 "<li>Username: <input maxlength=\"10\" type=\"text\" name=\"username\"></li>\n" +
 "<li>Password1: <input type=\"password\" name=\"password1\"></li>");
-    p = new UserRegistration({autoId: "id_%(name)s"});
+    p = new UserRegistration({autoId: "id_{0}"});
     equals(""+p.asUL(),
 "<li><label for=\"id_username\">Username:</label> <input maxlength=\"10\" type=\"text\" name=\"username\" id=\"id_username\"></li>\n" +
 "<li><label for=\"id_password1\">Password1:</label> <input type=\"password\" name=\"password1\" id=\"id_password1\"></li>");

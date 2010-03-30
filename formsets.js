@@ -34,9 +34,9 @@ ManagementForm.prototype = new Form();
  *                          future server-side implementation.
  * @config {String} [autoId] a template for use when automatically generating
  *                           <code>id</code> attributes for fields, which should
- *                           contain a <code>"%(name)s"</code> placeholder for
+ *                           contain a <code>"{0}"</code> placeholder for
  *                           the field name - defaults to
- *                           <code>"id_%(name)s"</code>.
+ *                           <code>"id_{0}"</code>.
  * @config {String} [prefix] a prefix to be applied to the name of each field in
  *                           each form instance.
  * @config {Object} [initial] a list of initial form data objects, where property
@@ -51,7 +51,7 @@ ManagementForm.prototype = new Form();
 function BaseFormSet(kwargs)
 {
     kwargs = extendObject({
-        data: null, files: null, autoId: "id_%(name)s", prefix: null,
+        data: null, files: null, autoId: "id_{0}", prefix: null,
         initial: null, errorConstructor: ErrorList
     }, kwargs || {});
     this.isBound = kwargs.data !== null || kwargs.files !== null;

@@ -93,9 +93,9 @@ BoundField.prototype =
         if (autoId)
         {
             autoId = ""+autoId;
-            if (autoId.indexOf("%(name)s") != -1)
+            if (autoId.indexOf("{0}") != -1)
             {
-                return formatString(autoId, {name: this.htmlName});
+                return autoId.format(this.htmlName);
             }
             else
             {
@@ -257,9 +257,9 @@ BoundField.prototype.toString = function()
  *                          future server-side implementation.
  * @config {String} [autoId] a template for use when automatically generating
  *                           <code>id</code> attributes for fields, which should
- *                           contain a <code>"%(name)s"</code> placeholder for
+ *                           contain a <code>"{0}"</code> placeholder for
  *                           the field name - defaults to
- *                           <code>"id_%(name)s"</code>.
+ *                           <code>"id_{0}"</code>.
  * @config {String} [prefix] a prefix to be applied to the name of each field in
  *                           this instance of the form - using a prefix allows
  *                           you to easily work with multiple instances of the
@@ -285,7 +285,7 @@ BoundField.prototype.toString = function()
 function Form(kwargs)
 {
     kwargs = extendObject({
-        data: null, files: null, autoId: "id_%(name)s", prefix: null, initial: null,
+        data: null, files: null, autoId: "id_{0}", prefix: null, initial: null,
         errorConstructor: ErrorList, labelSuffix: ":", emptyPermitted: false
     }, kwargs || {});
     this.isBound = kwargs.data !== null || kwargs.files !== null;
