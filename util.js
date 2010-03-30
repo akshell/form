@@ -213,7 +213,7 @@ function ErrorObject()
 ErrorObject.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-};
+}.update({safe: true});
 
 ErrorObject.prototype.defaultRendering = function()
 {
@@ -289,7 +289,7 @@ function ErrorList(errors)
 ErrorList.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-};
+}.update({safe: true});
 
 ErrorList.prototype.defaultRendering = function()
 {

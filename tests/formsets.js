@@ -240,7 +240,7 @@ test("Displaying more than one blank form", function()
 
     // Make sure retrieving an empty form works, and it shows up in the form list.
     same(formset.emptyForm.emptyPermitted, true);
-    equals(formset.emptyForm.asUL(),
+    equals(""+formset.emptyForm.asUL(),
 "<li>Choice: <input type=\"text\" name=\"choices-__prefix__-choice\"></li>\n" +
 "<li>Votes: <input type=\"text\" name=\"choices-__prefix__-votes\"></li>");
 });

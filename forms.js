@@ -244,7 +244,7 @@ BoundField.prototype.labelTag = function(kwargs)
 BoundField.prototype.toString = function()
 {
     return ""+this.asWidget();
-};
+}.update({safe: true});
 
 /**
  * A collection of Fields that knows how to validate and display itself.
@@ -402,7 +402,7 @@ Form.prototype.__iterator__ = function()
 Form.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-};
+}.update({safe: true});
 
 Form.prototype.defaultRendering = function()
 {
@@ -425,6 +425,13 @@ Form.prototype.boundField = function(name)
         throw new Error("Form does not have a " + name + " field.");
     }
     return new BoundField(this, this.fields[name], name);
+};
+
+Form.prototype.getTemplateVariable = function (name)
+{
+    return (this.fields.hasOwnProperty(name)
+            ? new BoundField(this, this.fields[name], name)
+            : this[name]);
 };
 
 /**
@@ -619,7 +626,7 @@ Form.prototype._htmlOutput = function(normalRow, errorRow, errorsOnSeparateRow, 
     }
     else
     {
-        return rows.join("\n");
+        return ak.safe(rows.join("\n"));
     }
 };
 

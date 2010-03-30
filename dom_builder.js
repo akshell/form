@@ -67,35 +67,14 @@
  */
 var DOMBuilder = (function()
 {
-    /**
-     * Escapes sensitive HTML characters.
-     */
-    var escapeHTML = (function()
-    {
-        var ampRe = /&/g;
-        var ltRe = /</g;
-        var gtRe = />/g;
-        var quoteRe1 = /"/g;
-        var quoteRe2 = /'/g;
-
-        return function(html)
-        {
-            return html.replace(ampRe, "&amp;").replace(ltRe, "&lt;").replace(gtRe, "&gt;").replace(quoteRe1, "&quot;").replace(quoteRe2, "&#39;");
-        };
-    })();
-
-    /**
-     * Escapes if the given input is not a SafeString, otherwise returns the
-     * value of the SafeString.
-     */
     function conditionalEscape(html)
     {
-        if (html instanceof SafeString)
+        if (html instanceof ak.template.Wrap)
         {
-            return html.value;
+            return ""+html;
         }
         // Ensure the value we're trying to escape is coerced to a String
-        return escapeHTML(""+html);
+        return ak.escapeHTML(""+html);
     }
 
     /**
@@ -113,29 +92,12 @@ var DOMBuilder = (function()
     })();
 
     /**
-     * String wrapper which marks the given string as safe for inclusion without
-     * escaping.
-     */
-    function SafeString(value)
-    {
-        this.value = value;
-    }
-
-    SafeString.prototype =
-    {
-        toString: function()
-        {
-            return this.value;
-        }
-    };
-
-    /**
      * Marks a string as safe - this method will be exposed as
      * DOMBUilder.markSafe for end users.
      */
     function markSafe(value)
     {
-        return new SafeString(value);
+        return ak.safe(value);
     }
 
     /**
@@ -145,7 +107,7 @@ var DOMBuilder = (function()
      */
     function isSafe(value)
     {
-        return (value instanceof SafeString);
+        return value instanceof ak.template.Wrap && value.safe;
     }
 
     /**
@@ -192,7 +154,7 @@ var DOMBuilder = (function()
             for (var i = 0, l = this.children.length; i < l; i++)
             {
                 var child = this.children[i];
-                if (child instanceof Tag || child instanceof SafeString)
+                if (child instanceof Tag || child instanceof ak.template.Wrap)
                 {
                     parts.push(child.toString());
                 }
@@ -211,7 +173,7 @@ var DOMBuilder = (function()
             // Closing tag
             parts.push("</" + this.tagName + ">");
             return parts.join("");
-        }
+        }.update({safe: true})
     };
 
     var o =
@@ -347,7 +309,7 @@ var DOMBuilder = (function()
                                  typeof args[0] == "string" ||
                                  typeof args[0] == "number" ||
                                  args[0] instanceof Tag ||
-                                 args[0] instanceof SafeString))
+                                 args[0] instanceof ak.template.Wrap))
             {
                 children = args;
             }

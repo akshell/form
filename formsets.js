@@ -264,7 +264,7 @@ BaseFormSet.prototype =
 BaseFormSet.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-};
+}.update({safe: true});
 
 BaseFormSet.prototype.defaultRendering = function()
 {
@@ -548,7 +548,7 @@ BaseFormSet.prototype.asTable = function(doNotCoerce)
     }
     else
     {
-        return rows.join("\n");
+        return ak.safe(rows.join("\n"));
     }
 };
 

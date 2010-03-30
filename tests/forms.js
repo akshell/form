@@ -44,7 +44,7 @@ test("Form", function()
     equals(""+p.boundField("birthday"),
            "<input type=\"text\" name=\"birthday\" id=\"id_birthday\" value=\"1940-10-9\">");
     try { p.boundField("nonexistentfield"); } catch (e) { equals(e.message, "Form does not have a nonexistentfield field."); }
-    equals(p.asTable(),
+    equals(""+p.asTable(),
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"id_first_name\" value=\"John\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"id_last_name\" value=\"Lennon\"></td></tr>\n" +
 "<tr><th><label for=\"id_birthday\">Birthday:</label></th><td><input type=\"text\" name=\"birthday\" id=\"id_birthday\" value=\"1940-10-9\"></td></tr>");
@@ -61,15 +61,15 @@ test("Form", function()
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"first_name\" id=\"id_first_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"last_name\" id=\"id_last_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_birthday\">Birthday:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"birthday\" id=\"id_birthday\"></td></tr>");
-    equals(p.asTable(),
+    equals(""+p.asTable(),
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"first_name\" id=\"id_first_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"last_name\" id=\"id_last_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_birthday\">Birthday:</label></th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"text\" name=\"birthday\" id=\"id_birthday\"></td></tr>");
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><ul class=\"errorlist\"><li>This field is required.</li></ul><label for=\"id_first_name\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"id_first_name\"></li>\n" +
 "<li><ul class=\"errorlist\"><li>This field is required.</li></ul><label for=\"id_last_name\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"id_last_name\"></li>\n" +
 "<li><ul class=\"errorlist\"><li>This field is required.</li></ul><label for=\"id_birthday\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"id_birthday\"></li>");
-    equals(p.asP(),
+    equals(""+p.asP(),
 "<ul class=\"errorlist\"><li>This field is required.</li></ul>\n" +
 "<p><label for=\"id_first_name\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"id_first_name\"></p>\n" +
 "<ul class=\"errorlist\"><li>This field is required.</li></ul>\n" +
@@ -89,15 +89,15 @@ test("Form", function()
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"id_first_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"id_last_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_birthday\">Birthday:</label></th><td><input type=\"text\" name=\"birthday\" id=\"id_birthday\"></td></tr>");
-    equals(p.asTable(),
+    equals(""+p.asTable(),
 "<tr><th><label for=\"id_first_name\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"id_first_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_last_name\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"id_last_name\"></td></tr>\n" +
 "<tr><th><label for=\"id_birthday\">Birthday:</label></th><td><input type=\"text\" name=\"birthday\" id=\"id_birthday\"></td></tr>");
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><label for=\"id_first_name\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"id_first_name\"></li>\n" +
 "<li><label for=\"id_last_name\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"id_last_name\"></li>\n" +
 "<li><label for=\"id_birthday\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"id_birthday\"></li>");
-    equals(p.asP(),
+    equals(""+p.asP(),
 "<p><label for=\"id_first_name\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"id_first_name\"></p>\n" +
 "<p><label for=\"id_last_name\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"id_last_name\"></p>\n" +
 "<p><label for=\"id_birthday\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"id_birthday\"></p>");
@@ -176,15 +176,15 @@ test("Form", function()
     // format string into which the field's name will be inserted. It will also
     // put a <label> around the human-readable labels for a field.
     p = new Person({autoId: "{0}_id"});
-    equals(p.asTable(),
+    equals(""+p.asTable(),
 "<tr><th><label for=\"first_name_id\">First name:</label></th><td><input type=\"text\" name=\"first_name\" id=\"first_name_id\"></td></tr>\n" +
 "<tr><th><label for=\"last_name_id\">Last name:</label></th><td><input type=\"text\" name=\"last_name\" id=\"last_name_id\"></td></tr>\n" +
 "<tr><th><label for=\"birthday_id\">Birthday:</label></th><td><input type=\"text\" name=\"birthday\" id=\"birthday_id\"></td></tr>");
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><label for=\"first_name_id\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"first_name_id\"></li>\n" +
 "<li><label for=\"last_name_id\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"last_name_id\"></li>\n" +
 "<li><label for=\"birthday_id\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"birthday_id\"></li>");
-    equals(p.asP(),
+    equals(""+p.asP(),
 "<p><label for=\"first_name_id\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"first_name_id\"></p>\n" +
 "<p><label for=\"last_name_id\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"last_name_id\"></p>\n" +
 "<p><label for=\"birthday_id\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"birthday_id\"></p>");
@@ -192,7 +192,7 @@ test("Form", function()
     // If autoId is any truthy value whose string representation does not
     // contain "%(name)s", the "id" attribute will be the name of the field.
     p = new Person({autoId: true});
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><label for=\"first_name\">First name:</label> <input type=\"text\" name=\"first_name\" id=\"first_name\"></li>\n" +
 "<li><label for=\"last_name\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"last_name\"></li>\n" +
 "<li><label for=\"birthday\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"birthday\"></li>");
@@ -200,7 +200,7 @@ test("Form", function()
     // If autoId is any falsy value, an "id" attribute won't be output unless it
     // was manually entered.
     p = new Person({autoId: false});
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li>First name: <input type=\"text\" name=\"first_name\"></li>\n" +
 "<li>Last name: <input type=\"text\" name=\"last_name\"></li>\n" +
 "<li>Birthday: <input type=\"text\" name=\"birthday\"></li>");
@@ -216,7 +216,7 @@ test("Form", function()
         birthday: new DateField()
     });
     p = new Person({autoId: false});
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><label for=\"first_name_id\">First name:</label> <input id=\"first_name_id\" type=\"text\" name=\"first_name\"></li>\n" +
 "<li>Last name: <input type=\"text\" name=\"last_name\"></li>\n" +
 "<li>Birthday: <input type=\"text\" name=\"birthday\"></li>");
@@ -224,7 +224,7 @@ test("Form", function()
     // If the "id" attribute is specified in the Form and autoId is true, the
     // "id" attribute in the Form gets precedence.
     p = new Person({autoId: true});
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li><label for=\"first_name_id\">First name:</label> <input id=\"first_name_id\" type=\"text\" name=\"first_name\"></li>\n" +
 "<li><label for=\"last_name\">Last name:</label> <input type=\"text\" name=\"last_name\" id=\"last_name\"></li>\n" +
 "<li><label for=\"birthday\">Birthday:</label> <input type=\"text\" name=\"birthday\" id=\"birthday\"></li>");
@@ -691,7 +691,7 @@ test("Validating multiple fields in relation to another", function()
         }
     });
     f = new UserRegistration({data: {}, autoId: false});
-    equals(f.asTable(),
+    equals(""+f.asTable(),
 "<tr><th>Username:</th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input maxlength=\"10\" type=\"text\" name=\"username\"></td></tr>\n" +
 "<tr><th>Password1:</th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"password\" name=\"password1\"></td></tr>\n" +
 "<tr><th>Password2:</th><td><ul class=\"errorlist\"><li>This field is required.</li></ul><input type=\"password\" name=\"password2\"></td></tr>")
@@ -700,12 +700,12 @@ test("Validating multiple fields in relation to another", function()
     same(f.errors["password2"].errors, ["This field is required."]);
     f = new UserRegistration({data: {username: "adrian", password1: "foo", password2: "bar"}, autoId: false});
     same(f.errors["__all__"].errors, ["Please make sure your passwords match."]);
-    equals(f.asTable(),
+    equals(""+f.asTable(),
 "<tr><td colspan=\"2\"><ul class=\"errorlist\"><li>Please make sure your passwords match.</li></ul></td></tr>\n" +
 "<tr><th>Username:</th><td><input maxlength=\"10\" type=\"text\" name=\"username\" value=\"adrian\"></td></tr>\n" +
 "<tr><th>Password1:</th><td><input type=\"password\" name=\"password1\" value=\"foo\"></td></tr>\n" +
 "<tr><th>Password2:</th><td><input type=\"password\" name=\"password2\" value=\"bar\"></td></tr>");
-    equals(f.asUL(),
+    equals(""+f.asUL(),
 "<li><ul class=\"errorlist\"><li>Please make sure your passwords match.</li></ul></li>\n" +
 "<li>Username: <input maxlength=\"10\" type=\"text\" name=\"username\" value=\"adrian\"></li>\n" +
 "<li>Password1: <input type=\"password\" name=\"password1\" value=\"foo\"></li>\n" +
@@ -859,11 +859,11 @@ test("Hidden inputs", function()
 "<tr><th>First name:</th><td><input type=\"text\" name=\"first_name\"></td></tr>\n" +
 "<tr><th>Last name:</th><td><input type=\"text\" name=\"last_name\"></td></tr>\n" +
 "<tr><th>Birthday:</th><td><input type=\"text\" name=\"birthday\"><input type=\"hidden\" name=\"hidden_text\"></td></tr>");
-    equals(p.asUL(),
+    equals(""+p.asUL(),
 "<li>First name: <input type=\"text\" name=\"first_name\"></li>\n" +
 "<li>Last name: <input type=\"text\" name=\"last_name\"></li>\n" +
 "<li>Birthday: <input type=\"text\" name=\"birthday\"><input type=\"hidden\" name=\"hidden_text\"></li>");
-    equals(p.asP(),
+    equals(""+p.asP(),
 "<p>First name: <input type=\"text\" name=\"first_name\"></p>\n" +
 "<p>Last name: <input type=\"text\" name=\"last_name\"></p>\n" +
 "<p>Birthday: <input type=\"text\" name=\"birthday\"><input type=\"hidden\" name=\"hidden_text\"></p>");
