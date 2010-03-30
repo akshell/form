@@ -51,6 +51,22 @@ function Field(kwargs)
         extendObject({}, this.defaultErrorMessages, kwargs.errorMessages || {});
 }
 
+Field.instances(
+    Function.subclass(
+        {
+            subclass: function ()
+            {
+                var constructor = Function.prototype.subclass.apply(this, arguments);
+
+                return function ()
+                {
+                    return (this instanceof arguments.callee
+                            ? constructor.apply(this, arguments)
+                            : ak.construct(arguments.callee, arguments));
+                }.wraps(constructor);
+            }
+        }));
+
 /**
  * Values which will, if given to <code>clean</code>, trigger the
  * <code>this.required</code> check.
@@ -133,7 +149,7 @@ Field.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Field
  */
-function CharField(kwargs)
+var CharField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxLength: null, minLength: null
@@ -141,9 +157,8 @@ function CharField(kwargs)
     this.maxLength = kwargs.maxLength;
     this.minLength = kwargs.minLength;
     Field.call(this, kwargs);
-}
+});
 
-CharField.prototype = new Field();
 CharField.prototype.defaultErrorMessages =
     extendObject({}, CharField.prototype.defaultErrorMessages, {
         maxLength: "Ensure this value has at most %(max)s characters (it has %(length)s).",
@@ -216,7 +231,7 @@ CharField.prototype.widgetAttrs = function(widget)
  * @constructor
  * @augments Field
  */
-function IntegerField(kwargs)
+var IntegerField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxValue: null, minValue: null
@@ -224,14 +239,13 @@ function IntegerField(kwargs)
     this.maxValue = kwargs.maxValue;
     this.minValue = kwargs.minValue;
     Field.call(this, kwargs);
-}
+});
 
 /**
  * Integer validation regular expression.
  */
 IntegerField.INTEGER_REGEXP = /^ *[-+]? *\d+ *$/;
 
-IntegerField.prototype = new Field();
 IntegerField.prototype.defaultErrorMessages =
     extendObject({}, IntegerField.prototype.defaultErrorMessages, {
         invalid: "Enter a whole number.",
@@ -285,7 +299,7 @@ IntegerField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function FloatField(kwargs)
+var FloatField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxValue: null, minValue: null
@@ -293,14 +307,13 @@ function FloatField(kwargs)
     this.maxValue = kwargs.maxValue;
     this.minValue = kwargs.minValue;
     Field.call(this, kwargs);
-}
+});
 
 /**
  * Float validation regular expression.
  */
 FloatField.FLOAT_REGEXP = /^ *[-+]? *\d+(?:\.\d+)? *$/;
 
-FloatField.prototype = new Field();
 FloatField.prototype.defaultErrorMessages =
     extendObject({}, FloatField.prototype.defaultErrorMessages, {
         invalid: "Enter a number.",
@@ -376,7 +389,7 @@ FloatField.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Field
  */
-function DecimalField(kwargs)
+var DecimalField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
       maxValue: null, minValue: null, maxDigits: null, decimalPlaces: null
@@ -386,14 +399,13 @@ function DecimalField(kwargs)
     this.maxDigits = kwargs.maxDigits;
     this.decimalPlaces = kwargs.decimalPlaces;
     Field.call(this, kwargs);
-}
+});
 
 /**
  * Decimal validation regular expression.
  */
 DecimalField.DECIMAL_REGEXP = /^ *[-+]? *(?:\d+(?:\.\d+)?|(?:\d+)?\.\d+) *$/;
 
-DecimalField.prototype = new Field();
 DecimalField.prototype.defaultErrorMessages =
     extendObject({}, DecimalField.prototype.defaultErrorMessages, {
         invalid: "Enter a number.",
@@ -492,7 +504,7 @@ DecimalField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function DateField(kwargs)
+var DateField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -500,7 +512,7 @@ function DateField(kwargs)
     Field.call(this, kwargs);
     this.inputFormats =
         kwargs.inputFormats || DateField.DEFAULT_DATE_INPUT_FORMATS;
-}
+});
 
 /**
  * Default {@link time.strptime} input formats which are considered valid.
@@ -514,7 +526,6 @@ DateField.DEFAULT_DATE_INPUT_FORMATS = [
     "d MMMM yyyy", "d MMMM, yyyy"  // "25 October 2006", "25 October, 2006"
 ];
 
-DateField.prototype = new Field();
 DateField.prototype.defaultErrorMessages =
     extendObject({}, DateField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid date."
@@ -573,7 +584,7 @@ DateField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function TimeField(kwargs)
+var TimeField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -581,7 +592,7 @@ function TimeField(kwargs)
     Field.call(this, kwargs);
     this.inputFormats =
         kwargs.inputFormats || TimeField.DEFAULT_TIME_INPUT_FORMATS;
-}
+});
 
 /**
  * Default {@link time.strptime} input formats which are considered valid.
@@ -591,7 +602,6 @@ TimeField.DEFAULT_TIME_INPUT_FORMATS = [
     "H:m"     // "14:30"
 ];
 
-TimeField.prototype = new Field();
 TimeField.prototype.defaultWidget = TimeInput;
 TimeField.prototype.defaultErrorMessages =
     extendObject({}, TimeField.prototype.defaultErrorMessages, {
@@ -655,7 +665,7 @@ TimeField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function DateTimeField(kwargs)
+var DateTimeField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -663,7 +673,7 @@ function DateTimeField(kwargs)
     Field.call(this, kwargs);
     this.inputFormats =
         kwargs.inputFormats || DateTimeField.DEFAULT_DATETIME_INPUT_FORMATS;
-}
+});
 
 /**
  * Default {@link time.strptime} input formats which are considered valid.
@@ -680,7 +690,6 @@ DateTimeField.DEFAULT_DATETIME_INPUT_FORMATS = [
     "M/d/yy"          // "10/25/06"
 ]
 
-DateTimeField.prototype = new Field();
 DateTimeField.prototype.defaultWidget = DateTimeInput;
 DateTimeField.prototype.defaultErrorMessages =
     extendObject({}, DateTimeField.prototype.defaultErrorMessages, {
@@ -747,7 +756,7 @@ DateTimeField.prototype.clean = function(value)
  * @constructor
  * @augments CharField
  */
-function RegexField(regex, kwargs)
+var RegexField = CharField.subclass(function (regex, kwargs)
 {
     CharField.call(this, kwargs);
     if (typeof regex == "string")
@@ -755,9 +764,7 @@ function RegexField(regex, kwargs)
         regex = new RegExp(regex);
     }
     this.regex = regex;
-}
-
-RegexField.prototype = new CharField();
+});
 
 /**
  * Validates that the given value matches the regular expression defined for
@@ -786,10 +793,10 @@ RegexField.prototype.clean = function(value)
  * @constructor
  * @augments RegexField
  */
-function EmailField(kwargs)
+var EmailField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, EmailField.EMAIL_REGEXP, kwargs);
-}
+});
 
 /**
  * E-mail validation regular expression.
@@ -799,8 +806,6 @@ EmailField.EMAIL_REGEXP = new RegExp(
     "|^\"([\\001-\\010\\013\\014\\016-\\037!#-\\[\\]-\\177]|\\\\[\\001-011\\013\\014\\016-\\177])*\"" + // Quoted-string
     ")@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\\.)+[A-Z]{2,6}\\.?$",                                                   // Domain
     "i");
-
-EmailField.prototype = new RegexField();
 
 EmailField.prototype.defaultErrorMessages =
     extendObject({}, EmailField.prototype.defaultErrorMessages, {
@@ -836,15 +841,14 @@ UploadedFile.prototype.toString = function()
  * @constructor
  * @augments Field
  */
-function FileField(kwargs)
+var FileField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({maxLength: null}, kwargs);
     this.maxLength = kwargs.maxLength;
     delete kwargs.maxLength;
     Field.call(this, kwargs);
-}
+});
 
-FileField.prototype = new Field();
 FileField.prototype.defaultWidget = FileInput;
 FileField.prototype.defaultErrorMessages =
     extendObject({}, FileField.prototype.defaultErrorMessages, {
@@ -917,12 +921,11 @@ FileField.prototype.clean = function(data, initial)
  * @constructor
  * @augments FileField
  */
-function ImageField(kwargs)
+var ImageField = FileField.subclass(function (kwargs)
 {
     FileField.call(this, kwargs);
-}
+});
 
-ImageField.prototype = new FileField();
 ImageField.prototype.defaultErrorMessages =
     extendObject({}, ImageField.prototype.defaultErrorMessages, {
         invalidImage: "Upload a valid image. The file you uploaded was either not an image or a corrupted image."
@@ -962,7 +965,7 @@ ImageField.prototype.clean = function(data, initial)
  * @constructor
  * @augments RegexField
  */
-function URLField(kwargs)
+var URLField = RegexField.subclass(function (kwargs)
 {
     kwargs = extendObject({
         verifyExists: false, userAgent: URLField.URL_VALIDATOR_USER_AGENT
@@ -970,7 +973,7 @@ function URLField(kwargs)
     RegexField.call(this, URLField.URL_REGEXP, kwargs);
     this.verifyExists = kwargs.verifyExists;
     this.userAgent = kwargs.userAgent;
-}
+});
 
 /**
  * URL validation regular expression.
@@ -990,7 +993,6 @@ URLField.URL_REGEXP = new RegExp(
 URLField.URL_VALIDATOR_USER_AGENT =
     "js-forms (http://code.google.com/p/js-forms/)";
 
-URLField.prototype = new RegexField();
 URLField.prototype.defaultErrorMessages =
     extendObject({}, URLField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid URL.",
@@ -1038,12 +1040,11 @@ URLField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function BooleanField(kwargs)
+var BooleanField = Field.subclass(function (kwargs)
 {
     Field.call(this, kwargs);
-}
+});
 
-BooleanField.prototype = new Field();
 BooleanField.prototype.defaultWidget = CheckboxInput;
 
 /**
@@ -1087,12 +1088,11 @@ BooleanField.prototype.clean = function(value)
  * @constructor
  * @augments BooleanField
  */
-function NullBooleanField(kwargs)
+var NullBooleanField = BooleanField.subclass(function (kwargs)
 {
     BooleanField.call(this, kwargs);
-}
+});
 
-NullBooleanField.prototype = new BooleanField();
 NullBooleanField.prototype.defaultWidget = NullBooleanSelect;
 
 NullBooleanField.prototype.clean = function(value)
@@ -1130,7 +1130,7 @@ NullBooleanField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function ChoiceField(kwargs)
+var ChoiceField = Field.subclass(function (kwargs)
 {
     this.__defineGetter__("choices", function()
     {
@@ -1147,9 +1147,8 @@ function ChoiceField(kwargs)
     }, kwargs || {});
     Field.call(this, kwargs);
     this.choices = kwargs.choices;
-}
+});
 
-ChoiceField.prototype = new Field();
 ChoiceField.prototype.defaultWidget = Select;
 ChoiceField.prototype.defaultErrorMessages =
     extendObject({}, ChoiceField.prototype.defaultErrorMessages, {
@@ -1235,7 +1234,7 @@ ChoiceField.prototype.validValue = function(value)
  * @constructor
  * @augments ChoiceField
  */
-function TypedChoiceField(kwargs)
+var TypedChoiceField = ChoiceField.subclass(function (kwargs)
 {
     kwargs = extendObject({
         coerce: function(val) { return val; }, emptyValue: ""
@@ -1245,9 +1244,7 @@ function TypedChoiceField(kwargs)
     delete kwargs.coerce;
     delete kwargs.emptyValue;
     ChoiceField.call(this, kwargs);
-}
-
-TypedChoiceField.prototype = new ChoiceField();
+});
 
 /**
  * Validates that the value is in this.choices and can be coerced to the right
@@ -1281,12 +1278,11 @@ TypedChoiceField.prototype.clean = function(value)
  * @constructor
  * @augments ChoiceField
  */
-function MultipleChoiceField(kwargs)
+var MultipleChoiceField = ChoiceField.subclass(function (kwargs)
 {
     ChoiceField.call(this, kwargs);
-}
+});
 
-MultipleChoiceField.prototype = new ChoiceField();
 MultipleChoiceField.prototype.defaultWidget = SelectMultiple;
 MultipleChoiceField.prototype.hiddenWidget = MultipleHiddenInput;
 MultipleChoiceField.prototype.defaultErrorMessages =
@@ -1359,7 +1355,7 @@ MultipleChoiceField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function ComboField(kwargs)
+var ComboField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({fields: []}, kwargs || {});
     Field.call(this, kwargs);
@@ -1371,9 +1367,7 @@ function ComboField(kwargs)
         kwargs.fields[i].required = false;
     }
     this.fields = kwargs.fields;
-}
-
-ComboField.prototype = new Field();
+});
 
 ComboField.prototype.clean = function(value)
 {
@@ -1408,7 +1402,7 @@ ComboField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-function MultiValueField(kwargs)
+var MultiValueField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({fields: []}, kwargs || {});
     Field.call(this, kwargs);
@@ -1420,9 +1414,8 @@ function MultiValueField(kwargs)
         kwargs.fields[i].required = false;
     }
     this.fields = kwargs.fields;
-}
+});
 
-MultiValueField.prototype = new Field();
 MultiValueField.prototype.defaultErrorMessages =
     extendObject({}, MultiValueField.prototype.defaultErrorMessages, {
         invalid: "Enter a list of values."
@@ -1550,7 +1543,7 @@ MultiValueField.prototype.compress = function(dataList)
  * @constructor
  * @augments ChoiceField
  */
-function FilePathField(path, kwargs)
+var FilePathField = ChoiceField.subclass(function (path, kwargs)
 {
     kwargs = extendObject({
         match: null, recursive: false, required: true, widget: null,
@@ -1584,9 +1577,7 @@ function FilePathField(path, kwargs)
     //      appropriate environments.
 
     this.widget.choices = this.choices;
-}
-
-FilePathField.prototype = new ChoiceField();
+});
 
 /**
  * A {@link MultiValueField} consisting of a {@link DateField} and a
@@ -1597,7 +1588,7 @@ FilePathField.prototype = new ChoiceField();
  * @constructor
  * @augments MultiValueField
  */
-function SplitDateTimeField(kwargs)
+var SplitDateTimeField = MultiValueField.subclass(function (kwargs)
 {
     kwargs = extendObject({}, kwargs || {});
     var errors = extendObject({}, this.defaultErrorMessages);
@@ -1609,9 +1600,8 @@ function SplitDateTimeField(kwargs)
         [new DateField({errorMessages: {invalid: errors.invalidDate}}),
          new TimeField({errorMessages: {invalid: errors.invalidTime}})];
     MultiValueField.call(this, kwargs);
-}
+});
 
-SplitDateTimeField.prototype = new MultiValueField();
 SplitDateTimeField.prototype.defaultWidget = SplitDateTimeWidget;
 SplitDateTimeField.prototype.defaultErrorMessages =
     extendObject({}, SplitDateTimeField.prototype.defaultErrorMessages, {
@@ -1659,10 +1649,10 @@ SplitDateTimeField.prototype.compress = function(dataList)
  * @constructor
  * @augments RegexField
  */
-function IPAddressField(kwargs)
+var IPAddressField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, IPAddressField.IPV4_REGEXP, kwargs);
-};
+});;
 
 /**
  * IPv4 address validation regular expression.
@@ -1670,7 +1660,6 @@ function IPAddressField(kwargs)
 IPAddressField.IPV4_REGEXP =
     /^(25[0-5]|2[0-4]\d|[0-1]?\d?\d)(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$/;
 
-IPAddressField.prototype = new RegexField();
 IPAddressField.prototype.defaultErrorMessages =
     extendObject({}, IPAddressField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid IPv4 address."
@@ -1684,17 +1673,16 @@ IPAddressField.prototype.defaultErrorMessages =
  * @constructor
  * @augments RegexField
  */
-function SlugField(kwargs)
+var SlugField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, SlugField.SLUG_REGEXP, kwargs);
-};
+});;
 
 /**
  * Slug validation regular expression.
  */
 SlugField.SLUG_REGEXP = /^[-\w]+$'/;
 
-SlugField.prototype = new RegexField();
 SlugField.prototype.defaultErrorMessages =
     extendObject({}, SlugField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens."
