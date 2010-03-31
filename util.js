@@ -393,3 +393,17 @@ parseUri.options = {
         loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
     }
 };
+
+var InstanceCreatorMeta = Function.subclass({
+    subclass: function ()
+    {
+        var constructor = Function.prototype.subclass.apply(this, arguments);
+
+        return function ()
+        {
+            return (this instanceof arguments.callee
+                    ? constructor.apply(this, arguments)
+                    : ak.construct(arguments.callee, arguments));
+        }.wraps(constructor);
+    }
+});

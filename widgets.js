@@ -19,6 +19,8 @@ function Widget(kwargs)
     this.attrs = extendObject({}, kwargs.attrs || {});
 }
 
+Widget.instances(InstanceCreatorMeta);
+
 /**
  * Determines whether this corresponds to an &lt;input type="hidden"&gt;.
  */
@@ -98,12 +100,7 @@ Widget.prototype.idForLabel = function(id)
  * @constructor
  * @augments Widget
  */
-function Input(kwargs)
-{
-    Widget.call(this, kwargs);
-}
-
-Input.prototype = new Widget();
+var Input = Widget.subclass();
 
 /**
  * The type of this input.
@@ -134,12 +131,8 @@ Input.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-function TextInput(kwargs)
-{
-    Input.call(this, kwargs);
-}
+var TextInput = Input.subclass();
 
-TextInput.prototype = new Input();
 TextInput.prototype.inputType = "text";
 
 /**
@@ -153,14 +146,13 @@ TextInput.prototype.inputType = "text";
  * @constructor
  * @augments Input
  */
-function PasswordInput(kwargs)
+var PasswordInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({renderValue: true}, kwargs || {});
     Input.call(this, kwargs);
     this.renderValue = kwargs.renderValue;
-}
+});
 
-PasswordInput.prototype = new Input();
 PasswordInput.prototype.inputType = "password";
 
 PasswordInput.prototype.render = function(name, value, attrs)
@@ -180,12 +172,8 @@ PasswordInput.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-function HiddenInput(kwargs)
-{
-    Input.call(this, kwargs);
-}
+var HiddenInput = Input.subclass();
 
-HiddenInput.prototype = new Input();
 HiddenInput.prototype.inputType = "hidden";
 HiddenInput.prototype.isHidden = true;
 
@@ -198,12 +186,7 @@ HiddenInput.prototype.isHidden = true;
  * @constructor
  * @augments HiddenInput
  */
-function MultipleHiddenInput(kwargs)
-{
-    HiddenInput.call(this, kwargs);
-}
-
-MultipleHiddenInput.prototype = new HiddenInput();
+var MultipleHiddenInput = HiddenInput.subclass();
 
 MultipleHiddenInput.prototype.render = function(name, value, attrs)
 {
@@ -240,12 +223,8 @@ MultipleHiddenInput.prototype.valueFromData = function(data, files, name)
  * @constructor
  * @augments Input
  */
-function FileInput(kwargs)
-{
-    Input.call(this, kwargs);
-}
+var FileInput = Input.subclass();
 
-FileInput.prototype = new Input();
 FileInput.prototype.inputType = "file";
 FileInput.prototype.needsMultipartForm = true;
 
@@ -283,15 +262,13 @@ FileInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-function Textarea(kwargs)
+var Textarea = Widget.subclass(function (kwargs)
 {
     // Provide default "cols" and "rows" attributes
     kwargs = extendObject({attrs: null}, kwargs || {});
     kwargs.attrs = extendObject({rows: "10", cols: "40"}, kwargs.attrs || {});
     Widget.call(this, kwargs);
-}
-
-Textarea.prototype = new Widget();
+});
 
 Textarea.prototype.render = function(name, value, attrs)
 {
@@ -313,7 +290,7 @@ Textarea.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-function DateInput(kwargs)
+var DateInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -321,9 +298,8 @@ function DateInput(kwargs)
     {
         this.format = kwargs.format;
     }
-}
+});
 
-DateInput.prototype = new Input();
 DateInput.prototype.inputType = "text";
 DateInput.prototype.format = "yyyy-MM-dd"; // "2006-10-25"
 
@@ -361,7 +337,7 @@ DateInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Input
  */
-function DateTimeInput(kwargs)
+var DateTimeInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -369,9 +345,8 @@ function DateTimeInput(kwargs)
     {
         this.format = kwargs.format;
     }
-}
+});
 
-DateTimeInput.prototype = new Input();
 DateTimeInput.prototype.inputType = "text";
 DateTimeInput.prototype.format = "yyyy-MM-dd HH:mm:ss"; // "2006-10-25 14:30:59"
 
@@ -409,7 +384,7 @@ DateTimeInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Input
  */
-function TimeInput(kwargs)
+var TimeInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -417,9 +392,8 @@ function TimeInput(kwargs)
     {
         this.format = kwargs.format;
     }
-}
+});
 
-TimeInput.prototype = new Input();
 TimeInput.prototype.inputType = "text";
 TimeInput.prototype.format = "HH:mm:ss" // "14:30:59"
 
@@ -458,14 +432,12 @@ TimeInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-function CheckboxInput(kwargs)
+var CheckboxInput = Widget.subclass(function (kwargs)
 {
     kwargs = extendObject({checkTest: Boolean}, kwargs || {});
     Widget.call(this, kwargs);
     this.checkTest = kwargs.checkTest;
-}
-
-CheckboxInput.prototype = new Widget();
+});
 
 CheckboxInput.prototype.render = function(name, value, attrs)
 {
@@ -524,14 +496,12 @@ CheckboxInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-function Select(kwargs)
+var Select = Widget.subclass(function (kwargs)
 {
     kwargs = extendObject({choices: []}, kwargs || {});
     Widget.call(this, kwargs);
     this.choices = kwargs.choices;
-}
-
-Select.prototype = new Widget();
+});
 
 /**
  * Renders the widget.
@@ -615,15 +585,13 @@ Select.prototype.renderOptions = function(choices, selectedValues)
  * @constructor
  * @augments Select
  */
-function NullBooleanSelect(kwargs)
+var NullBooleanSelect = Select.subclass(function (kwargs)
 {
     kwargs = extendObject({
         choices: [["1", "Unknown"], ["2", "Yes"], ["3", "No"]]
     }, kwargs || {});
     Select.call(this, kwargs);
-};
-
-NullBooleanSelect.prototype = new Select();
+});
 
 NullBooleanSelect.prototype.render = function(name, value, attrs, choices)
 {
@@ -675,12 +643,7 @@ NullBooleanSelect.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-function SelectMultiple(kwargs)
-{
-    Select.call(this, kwargs);
-}
-
-SelectMultiple.prototype = new Select();
+var SelectMultiple = Select.subclass();
 
 /**
  * Renders the widget.
@@ -870,7 +833,7 @@ RadioFieldRenderer.prototype.render = function()
  * @constructor
  * @augments Select
  */
-function RadioSelect(kwargs)
+var RadioSelect = Select.subclass(function (kwargs)
 {
     kwargs = extendObject({renderer: null}, kwargs || {});
     // Override the default renderer if we were passed one
@@ -879,9 +842,8 @@ function RadioSelect(kwargs)
         this.renderer = kwargs.renderer;
     }
     Select.call(this, kwargs);
-}
+});
 
-RadioSelect.prototype = new Select();
 RadioSelect.prototype.renderer = RadioFieldRenderer;
 
 /**
@@ -925,12 +887,7 @@ RadioSelect.prototype.idForLabel = function(id)
  * @constructor
  * @augments SelectMultiple
  */
-function CheckboxSelectMultiple(kwargs)
-{
-    SelectMultiple.call(this, kwargs);
-}
-
-CheckboxSelectMultiple.prototype = new SelectMultiple();
+var CheckboxSelectMultiple = SelectMultiple.subclass();
 
 CheckboxSelectMultiple.prototype.render = function(name, selectedValues, attrs, choices)
 {
@@ -998,13 +955,11 @@ CheckboxSelectMultiple.prototype.idForLabel = function(id)
  * @constructor
  * @augments Widget
  */
-function MultiWidget(widgets, kwargs)
+var MultiWidget = Widget.subclass(function (widgets, kwargs)
 {
     this.widgets = widgets;
     Widget.call(this, kwargs);
-}
-
-MultiWidget.prototype = new Widget();
+});
 
 /**
  * This method is different than other widgets', because it has to figure out
@@ -1137,7 +1092,7 @@ MultiWidget.prototype.decompress = function(value)
  * @constructor
  * @augments MultiWidget
  */
-function SplitDateTimeWidget(kwargs)
+var SplitDateTimeWidget = MultiWidget.subclass(function (kwargs)
 {
     kwargs = extendObject({
         attrs: null, dateFormat: null, timeFormat: null
@@ -1154,9 +1109,8 @@ function SplitDateTimeWidget(kwargs)
         new DateInput({attrs: kwargs.attrs, format: this.dateFormat}),
         new TimeInput({attrs: kwargs.attrs, format: this.timeFormat})];
     MultiWidget.call(this, widgets, kwargs);
-}
+});
 
-SplitDateTimeWidget.prototype = new MultiWidget();
 SplitDateTimeWidget.prototype.dateFormat = DateInput.prototype.format;
 SplitDateTimeWidget.prototype.timeFormat = TimeInput.prototype.format;
 
@@ -1181,7 +1135,7 @@ SplitDateTimeWidget.prototype.decompress = function(value)
  * @constructor
  * @augments SplitDateTimeWidget
  */
-function SplitHiddenDateTimeWidget(kwargs)
+var SplitHiddenDateTimeWidget = SplitDateTimeWidget.subclass(function (kwargs)
 {
     kwargs = extendObject({attrs: null}, kwargs || {});
     var dateInput = new DateInput({attrs: kwargs.attrs, format: this.dateFormat});
@@ -1190,7 +1144,6 @@ function SplitHiddenDateTimeWidget(kwargs)
     timeInput.inputType = "hidden";
     var widgets = [dateInput, timeInput];
     MultiWidget.call(this, widgets, kwargs);
-}
+});
 
-SplitHiddenDateTimeWidget.prototype = new SplitDateTimeWidget();
 SplitHiddenDateTimeWidget.isHidden = true;

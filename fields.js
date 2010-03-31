@@ -51,21 +51,7 @@ function Field(kwargs)
         extendObject({}, this.defaultErrorMessages, kwargs.errorMessages || {});
 }
 
-Field.instances(
-    Function.subclass(
-        {
-            subclass: function ()
-            {
-                var constructor = Function.prototype.subclass.apply(this, arguments);
-
-                return function ()
-                {
-                    return (this instanceof arguments.callee
-                            ? constructor.apply(this, arguments)
-                            : ak.construct(arguments.callee, arguments));
-                }.wraps(constructor);
-            }
-        }));
+Field.instances(InstanceCreatorMeta);
 
 /**
  * Values which will, if given to <code>clean</code>, trigger the
