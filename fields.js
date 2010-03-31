@@ -1667,7 +1667,7 @@ var SlugField = RegexField.subclass(function (kwargs)
 /**
  * Slug validation regular expression.
  */
-SlugField.SLUG_REGEXP = /^[-\w]+$'/;
+SlugField.SLUG_REGEXP = /^[-\w]+$/;
 
 SlugField.prototype.defaultErrorMessages =
     extendObject({}, SlugField.prototype.defaultErrorMessages, {
