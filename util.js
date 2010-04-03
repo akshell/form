@@ -251,7 +251,9 @@ ErrorObject.prototype.asUL = function()
             items.push(DOMBuilder.createElement("li", {}, [name, this[name].asUL()]));
         }
     }
-    return DOMBuilder.createElement("ul", {"class": "errorlist"}, items);
+    return (items.length
+            ? DOMBuilder.createElement("ul", {"class": "errorlist"}, items)
+            : "");
 };
 
 /**
@@ -316,7 +318,9 @@ ErrorList.prototype.asUL = function()
     {
         items.push(DOMBuilder.createElement("li", {}, [this.errors[i]]));
     }
-    return DOMBuilder.createElement("ul", {"class": "errorlist"}, items);
+    return (items.length
+            ? DOMBuilder.createElement("ul", {"class": "errorlist"}, items)
+            : "");
 };
 
 /**
