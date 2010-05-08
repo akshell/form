@@ -2,6 +2,11 @@
  * @fileOverview Miscellaneous utility functions and objects.
  */
 
+exports.ak = require('ak', '0.2');
+
+
+var DOMBuilder = require('DOMBuilder').DOMBuilder;
+
 /**
  * Updates an object's properties with other objects' properties.
  *
@@ -13,7 +18,7 @@
  * @return the <code>destination</code> object.
  * @type Object
  */
-function extendObject(destination)
+exports.extendObject = function (destination)
 {
     for (var i = 1, l = arguments.length; i < l; i++)
     {
@@ -27,7 +32,7 @@ function extendObject(destination)
         }
     }
     return destination;
-}
+};
 
 /**
  * Performs replacement of named placeholders in a String, specified in
@@ -40,7 +45,7 @@ function extendObject(destination)
  * @type String
  * @function
  */
-var formatString = function()
+exports.formatString = function()
 {
     // Closure for accessing a context object from the replacement function
     var replacer = function(context)
@@ -169,7 +174,7 @@ function formData(form)
  *         <code>false</code> otherwise.
  * @type Boolean
  */
-function contains(container, item)
+exports.contains = function (container, item)
 {
     if (container instanceof Array)
     {
@@ -196,7 +201,7 @@ function contains(container, item)
         }
     }
     return false;
-}
+};
 
 /**
  * A collection of errors that knows how to display itself in various formats.
@@ -206,14 +211,16 @@ function contains(container, item)
  *
  * @constructor
  */
-function ErrorObject()
+var ErrorObject = exports.ErrorObject = function ()
 {
-}
+};
 
 ErrorObject.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-}.update({safe: true});
+};
+
+ErrorObject.prototype.toString.safe = true;
 
 ErrorObject.prototype.defaultRendering = function()
 {
@@ -283,15 +290,17 @@ ErrorObject.prototype.asText = function()
  * @param {Array} [errors] a list of errors.
  * @constructor
  */
-function ErrorList(errors)
+var ErrorList = exports.ErrorList = function (errors)
 {
     this.errors = errors || [];
-}
+};
 
 ErrorList.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-}.update({safe: true});
+};
+
+ErrorList.prototype.toString.safe = true;
 
 ErrorList.prototype.defaultRendering = function()
 {
@@ -353,7 +362,7 @@ ErrorList.prototype.isPopulated = function()
  * @param message an error message or <code>Array</code> of error messages.
  * @constructor
  */
-function ValidationError(message)
+exports.ValidationError = function (message)
 {
     if (message instanceof Array)
     {
@@ -363,14 +372,14 @@ function ValidationError(message)
     {
         this.messages = new ErrorList([message]);
     }
-}
+};
 
 // parseUri 1.2.2
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
 
-function parseUri (str) {
-    var o   = parseUri.options,
+exports.parseUri = function (str) {
+    var o   = exports.parseUri.options,
         m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
         uri = {},
         i   = 14;
@@ -385,7 +394,7 @@ function parseUri (str) {
     return uri;
 };
 
-parseUri.options = {
+exports.parseUri.options = {
     strictMode: false,
     key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
     q:   {
@@ -398,7 +407,7 @@ parseUri.options = {
     }
 };
 
-var InstanceCreatorMeta = Function.subclass({
+exports.InstanceCreatorMeta = Function.subclass({
     subclass: function ()
     {
         var constructor = Function.prototype.subclass.apply(this, arguments);
@@ -407,7 +416,7 @@ var InstanceCreatorMeta = Function.subclass({
         {
             return (this instanceof arguments.callee
                     ? constructor.apply(this, arguments)
-                    : ak.construct(arguments.callee, arguments));
+                    : exports.ak.construct(arguments.callee, arguments));
         }.wraps(constructor);
     }
 });

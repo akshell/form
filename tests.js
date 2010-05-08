@@ -24,68 +24,80 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-ak.use('ak', '0.1');
-ak.update(this, ak);
-
-include('__init__.js');
-update(this, form, form._internal);
-
 
 var testCaseClass;
-var testCount;
+var count;
+var expected;
 
 
-function module(name) {
-  testCaseClass.prototype.name = name;
-}
+var BaseTestCase = TestCase.subclass(
+  {
+    setUp: function () {
+      count = 0;
+      expected = undefined;
+    },
 
-
-var test = function (name, func) {
-  testCaseClass.prototype['test' + name] = func;
-};
-
-
-function expect(count) {
-  testCount += count;
-}
+    tearDown: function () {
+      assert(!expected || expected == count);
+    }
+  });
 
 
 function makeCheck(func) {
   return function () {
-    --testCount;
+    ++count;
     func.apply(this, arguments);
   };
 }
 
 
-var ok = makeCheck(assert);
-var equals = makeCheck(assertSame);
+exports.scope = update(
+  {},
+  require('index'),
+  require('util'),
+  require('forms'),
+  require('DOMBuilder'),
+  {
+    time: require('time'),
 
+    test: function (name, func) {
+      testCaseClass.prototype['test' + name] = func;
+    },
 
-var same = makeCheck(
-  function (lhs, rhs, /* optional */message) {
-    try {
-      assertEqual(lhs, rhs, message);
-    } catch (error) {
-      if (error instanceof AssertionError &&
-          lhs instanceof Object && rhs instanceof Object) {
-        if (lhs.__proto__ === Object.prototype &&
-            rhs.__proto__ === Object.prototype) {
-          assertEqual(items(lhs), items(rhs), message);
-          return;
+    expect: function (num) {
+      count = 0;
+      expected = num;
+    },
+
+    ok: makeCheck(assert),
+
+    equals: makeCheck(assertSame),
+
+    same: makeCheck(
+      function (lhs, rhs, /* optional */message) {
+        try {
+          assertEqual(lhs, rhs, message);
+        } catch (error) {
+          if (error instanceof AssertionError &&
+              lhs instanceof Object && rhs instanceof Object) {
+            if (lhs.__proto__ === Object.prototype &&
+                rhs.__proto__ === Object.prototype) {
+              assertEqual(items(lhs), items(rhs), message);
+              return;
+            }
+            if (lhs.__proto__ === Array.prototype &&
+                rhs.__proto__ === Array.prototype) {
+              assertEqual(lhs.map(items), rhs.map(items), message);
+              return;
+            }
+          }
+          throw error;
         }
-        if (lhs.__proto__ === Array.prototype &&
-            rhs.__proto__ === Array.prototype) {
-          assertEqual(lhs.map(items), rhs.map(items), message);
-          return;
-        }
-      }
-      throw error;
-    }
+      })
   });
 
 
-var tests = new Module('tests');
+exports.tests = {};
 
 
 [
@@ -99,22 +111,6 @@ var tests = new Module('tests');
   'widgets'
 ].forEach(
   function (name) {
-    testCaseClass = TestCase.subclass();
-    include('tests/{0}.js'.format(name));
-    tests[name] = testCaseClass;
-    testCaseClass = undefined;
+    exports.tests[name] = testCaseClass = BaseTestCase.subclass({name: name});
+    require('tests/' + name);
   });
-
-
-test = function (source) {
-  testCount = 0;
-  var result = ak.test(source || tests);
-  if (testCount != 0)
-    result += '\nFAILED testCount=' + testCount;
-  return result;
-};
-
-
-function __main__(request) {
-  return redirect('http://www.akshell.com/apps/form/');
-}

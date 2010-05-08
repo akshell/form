@@ -2,6 +2,12 @@
  * @fileOverview Form Widgets, which render an HTML representation of a Field.
  */
 
+var util = require('util');
+var time = require('time');
+
+var extendObject = util.extendObject;
+var DOMBuilder = require('DOMBuilder').DOMBuilder;
+
 /**
  * An HTML form widget.
  * <p>
@@ -12,14 +18,14 @@
  * @config {Object} [attrs] HTML attributes for the rendered widget.
  * @constructor
  */
-function Widget(kwargs)
+var Widget = exports.Widget = function (kwargs)
 {
     kwargs = extendObject({attrs: null}, kwargs || {})
     // Copy attributes to a new Object
     this.attrs = extendObject({}, kwargs.attrs || {});
-}
+};
 
-Widget.instances(InstanceCreatorMeta);
+Widget.__proto__ = util.InstanceCreatorMeta.prototype;
 
 /**
  * Determines whether this corresponds to an &lt;input type="hidden"&gt;.
@@ -100,7 +106,7 @@ Widget.prototype.idForLabel = function(id)
  * @constructor
  * @augments Widget
  */
-var Input = Widget.subclass();
+var Input = exports.Input = Widget.subclass();
 
 /**
  * The type of this input.
@@ -131,7 +137,7 @@ Input.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-var TextInput = Input.subclass();
+var TextInput = exports.TextInput = Input.subclass();
 
 TextInput.prototype.inputType = "text";
 
@@ -146,7 +152,7 @@ TextInput.prototype.inputType = "text";
  * @constructor
  * @augments Input
  */
-var PasswordInput = Input.subclass(function (kwargs)
+var PasswordInput = exports.PasswordInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({renderValue: true}, kwargs || {});
     Input.call(this, kwargs);
@@ -172,7 +178,7 @@ PasswordInput.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-var HiddenInput = Input.subclass();
+var HiddenInput = exports.HiddenInput = Input.subclass();
 
 HiddenInput.prototype.inputType = "hidden";
 HiddenInput.prototype.isHidden = true;
@@ -186,7 +192,7 @@ HiddenInput.prototype.isHidden = true;
  * @constructor
  * @augments HiddenInput
  */
-var MultipleHiddenInput = HiddenInput.subclass();
+var MultipleHiddenInput = exports.MultipleHiddenInput = HiddenInput.subclass();
 
 MultipleHiddenInput.prototype.render = function(name, value, attrs)
 {
@@ -223,7 +229,7 @@ MultipleHiddenInput.prototype.valueFromData = function(data, files, name)
  * @constructor
  * @augments Input
  */
-var FileInput = Input.subclass();
+var FileInput = exports.FileInput = Input.subclass();
 
 FileInput.prototype.inputType = "file";
 FileInput.prototype.needsMultipartForm = true;
@@ -262,7 +268,7 @@ FileInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-var Textarea = Widget.subclass(function (kwargs)
+var Textarea = exports.Textarea = Widget.subclass(function (kwargs)
 {
     // Provide default "cols" and "rows" attributes
     kwargs = extendObject({attrs: null}, kwargs || {});
@@ -290,7 +296,7 @@ Textarea.prototype.render = function(name, value, attrs)
  * @constructor
  * @augments Input
  */
-var DateInput = Input.subclass(function (kwargs)
+var DateInput = exports.DateInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -337,7 +343,7 @@ DateInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Input
  */
-var DateTimeInput = Input.subclass(function (kwargs)
+var DateTimeInput = exports.DateTimeInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -384,7 +390,7 @@ DateTimeInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Input
  */
-var TimeInput = Input.subclass(function (kwargs)
+var TimeInput = exports.TimeInput = Input.subclass(function (kwargs)
 {
     kwargs = extendObject({format: null}, kwargs || {});
     Input.call(this, kwargs);
@@ -432,7 +438,7 @@ TimeInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-var CheckboxInput = Widget.subclass(function (kwargs)
+var CheckboxInput = exports.CheckboxInput = Widget.subclass(function (kwargs)
 {
     kwargs = extendObject({checkTest: Boolean}, kwargs || {});
     Widget.call(this, kwargs);
@@ -496,7 +502,7 @@ CheckboxInput.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-var Select = Widget.subclass(function (kwargs)
+var Select = exports.Select = Widget.subclass(function (kwargs)
 {
     kwargs = extendObject({choices: []}, kwargs || {});
     Widget.call(this, kwargs);
@@ -585,7 +591,7 @@ Select.prototype.renderOptions = function(choices, selectedValues)
  * @constructor
  * @augments Select
  */
-var NullBooleanSelect = Select.subclass(function (kwargs)
+var NullBooleanSelect = exports.NullBooleanSelect = Select.subclass(function (kwargs)
 {
     kwargs = extendObject({
         choices: [["1", "Unknown"], ["2", "Yes"], ["3", "No"]]
@@ -643,7 +649,7 @@ NullBooleanSelect.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Widget
  */
-var SelectMultiple = Select.subclass();
+var SelectMultiple = exports.SelectMultiple = Select.subclass();
 
 /**
  * Renders the widget.
@@ -794,7 +800,7 @@ RadioInput.prototype.tag = function()
  *                        <code>[value, text]</code> format.
  * @constructor
  */
-function RadioFieldRenderer(name, value, attrs, choices)
+var RadioFieldRenderer = exports.RadioFieldRenderer = function (name, value, attrs, choices)
 {
     this.name = name;
     this.value = value;
@@ -833,7 +839,7 @@ RadioFieldRenderer.prototype.render = function()
  * @constructor
  * @augments Select
  */
-var RadioSelect = Select.subclass(function (kwargs)
+var RadioSelect = exports.RadioSelect = Select.subclass(function (kwargs)
 {
     kwargs = extendObject({renderer: null}, kwargs || {});
     // Override the default renderer if we were passed one
@@ -887,7 +893,7 @@ RadioSelect.prototype.idForLabel = function(id)
  * @constructor
  * @augments SelectMultiple
  */
-var CheckboxSelectMultiple = SelectMultiple.subclass();
+var CheckboxSelectMultiple = exports.CheckboxSelectMultiple = SelectMultiple.subclass();
 
 CheckboxSelectMultiple.prototype.render = function(name, selectedValues, attrs, choices)
 {
@@ -955,7 +961,7 @@ CheckboxSelectMultiple.prototype.idForLabel = function(id)
  * @constructor
  * @augments Widget
  */
-var MultiWidget = Widget.subclass(function (widgets, kwargs)
+var MultiWidget = exports.MultiWidget = Widget.subclass(function (widgets, kwargs)
 {
     this.widgets = widgets;
     Widget.call(this, kwargs);
@@ -1092,7 +1098,7 @@ MultiWidget.prototype.decompress = function(value)
  * @constructor
  * @augments MultiWidget
  */
-var SplitDateTimeWidget = MultiWidget.subclass(function (kwargs)
+var SplitDateTimeWidget = exports.SplitDateTimeWidget = MultiWidget.subclass(function (kwargs)
 {
     kwargs = extendObject({
         attrs: null, dateFormat: null, timeFormat: null
@@ -1135,7 +1141,7 @@ SplitDateTimeWidget.prototype.decompress = function(value)
  * @constructor
  * @augments SplitDateTimeWidget
  */
-var SplitHiddenDateTimeWidget = SplitDateTimeWidget.subclass(function (kwargs)
+var SplitHiddenDateTimeWidget = exports.SplitHiddenDateTimeWidget = SplitDateTimeWidget.subclass(function (kwargs)
 {
     kwargs = extendObject({attrs: null}, kwargs || {});
     var dateInput = new DateInput({attrs: kwargs.attrs, format: this.dateFormat});

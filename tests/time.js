@@ -1,4 +1,5 @@
-module("time");
+
+with (require('tests').scope) {
 
 test("strptime", function()
 {
@@ -125,3 +126,5 @@ test("strftime", function()
     equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "ddd dd MMM"), "Wed 25 Oct");
     equals(time.strftime(new Date(2006, 9, 25, 14, 30, 59), "dddd dd MMMM"), "Wednesday 25 October");
 });
+
+}

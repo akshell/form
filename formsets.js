@@ -3,19 +3,31 @@
  *               forms on the same page. They can be best compared to data grids.
  */
 
+var util = require('util');
+var ak = util.ak;
+var fields = require('fields');
+
+var extendObject = util.extendObject;
+var ValidationError = util.ValidationError;
+var Form = require('forms').Form;
+var IntegerField = fields.IntegerField;
+var BooleanField = fields.BooleanField;
+var HiddenInput = require('widgets').HiddenInput;
+var DOMBuilder = require('DOMBuilder').DOMBuilder;
+
 /**
  * A form which defines fields related to formset management.
  * @constructor
  * @augments Form
  */
-function ManagementForm(kwargs)
+var ManagementForm = exports.MagementForm = function (kwargs)
 {
     this.fields = {};
     this.fields[ManagementForm.TOTAL_FORM_COUNT] = new IntegerField({widget: HiddenInput});
     this.fields[ManagementForm.INITIAL_FORM_COUNT] = new IntegerField({widget: HiddenInput});
     this.fields[ManagementForm.MAX_NUM_FORM_COUNT] = new IntegerField({widget: HiddenInput});
     Form.call(this, kwargs);
-}
+};
 
 ManagementForm.TOTAL_FORM_COUNT = "TOTAL_FORMS";
 ManagementForm.INITIAL_FORM_COUNT = "INITIAL_FORMS";
@@ -48,11 +60,11 @@ ManagementForm.prototype = new Form();
  *                                       to {@link ErrorList}.
  * @constructor
  */
-function BaseFormSet(kwargs)
+var BaseFormSet = exports.BaseFormSet = function (kwargs)
 {
     kwargs = extendObject({
         data: null, files: null, autoId: "id_{0}", prefix: null,
-        initial: null, errorConstructor: ErrorList
+        initial: null, errorConstructor: util.ErrorList
     }, kwargs || {});
     this.isBound = kwargs.data !== null || kwargs.files !== null;
     this.prefix = kwargs.prefix || BaseFormSet.getDefaultPrefix();
@@ -264,7 +276,9 @@ BaseFormSet.prototype =
 BaseFormSet.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-}.update({safe: true});
+};
+
+BaseFormSet.prototype.toString.safe = true;
 
 BaseFormSet.prototype.defaultRendering = function()
 {
@@ -588,7 +602,7 @@ class BaseFormSet(StrAndUnicode):
  *
  * @type Function
  */
-function formsetFactory(form, kwargs)
+var formsetFactory = exports.formsetFactory = function (form, kwargs)
 {
     kwargs = extendObject({
         formset: BaseFormSet, extra: 1, canOrder: false, canDelete: false, maxNum: 0
@@ -630,7 +644,7 @@ function formsetFactory(form, kwargs)
  *
  * @Boolean
  */
-function allValid(formsets)
+var allValid = exports.allValid = function (formsets)
 {
     var valid = true;
     for (var i = 0, l = formsets.length; i < l; i++)

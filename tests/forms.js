@@ -1,4 +1,5 @@
-module("forms");
+
+with (require('tests').scope) {
 
 test("prettyName", function()
 {
@@ -725,7 +726,7 @@ test("Dynamic construction", function()
     // first.
     var Person = Form.subclass(
         function (kwargs) {
-            this.fields = {}.update(this.fields, {birthday: new DateField()});
+            this.fields = extendObject({}, this.fields, {birthday: new DateField()});
             Form.call(this, kwargs);
         },
         {
@@ -746,7 +747,7 @@ test("Dynamic construction", function()
             for (var i = 0, l = kwargs.fieldList.length; i < l; i++) {
                 this.fields[kwargs.fieldList[i][0]] = kwargs.fieldList[i][1];
             }
-            Form.call(this, {data: null, autoId: false}.update(kwargs));
+            Form.call(this, extendObject({data: null, autoId: false}, kwargs));
         });
     var fieldList = [["field1", new CharField()], ["field2", new CharField()]];
     var myForm = new MyForm({fieldList: fieldList});
@@ -761,11 +762,11 @@ test("Dynamic construction", function()
 
     MyForm = Form.subclass(
         function (kwargs) {
-            this.fields = {}.update(this.fields);
+            this.fields = extendObject({}, this.fields);
             for (var i = 0, l = kwargs.fieldList.length; i < l; i++) {
                 this.fields[kwargs.fieldList[i][0]] = kwargs.fieldList[i][1];
             }
-            Form.call(this, {data: null, autoId: false}.update(kwargs));
+            Form.call(this, extendObject({data: null, autoId: false}, kwargs));
         },
         {
             default_field_1: new CharField(),
@@ -1719,3 +1720,5 @@ test("Overriding ErrorList", function()
 "<div class=\"errorlist\"><div class=\"error\">This field is required.</div></div>\n" +
 "<p>Comment: <input type=\"text\" name=\"comment\"></p>");
 });
+
+}

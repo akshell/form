@@ -1,4 +1,5 @@
-module("extra stuff");
+
+with (require('tests').scope) {
 
 test("MultiWidget and MultiValueField", function()
 {
@@ -92,3 +93,5 @@ test("MultiWidget and MultiValueField", function()
 
     equals(f.cleanedData["field1"], "some text,JP,2007-04-25 06:24:00");
 });
+
+}

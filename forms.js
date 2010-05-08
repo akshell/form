@@ -3,11 +3,21 @@
  *               collection of Fields.
  */
 
+var util = require('util');
+var widgets = require('widgets');
+var fields = require('fields');
+
+var extendObject = util.extendObject;
+var ValidationError = util.ValidationError;
+var Field = fields.Field;
+var FileField = fields.FileField;
+var DOMBuilder = require('DOMBuilder').DOMBuilder;
+
 /**
  * Converts "firstName" and "first_name" to "First name", and
  * "SHOUTING_LIKE_THIS" to "SHOUTING LIKE THIS".
  */
-var prettyName = (function()
+var prettyName = exports.prettyName = (function()
 {
     var capsRE = /([A-Z]+)/g;
     var splitRE = /[ _]+/;
@@ -54,7 +64,7 @@ var prettyName = (function()
  * @param {String} name the name under which the field is held in the form.
  * @constructor
  */
-function BoundField(form, field, name)
+var BoundField = exports.BoundField = function (form, field, name)
 {
     this.form = form;
     this.field = field;
@@ -182,7 +192,7 @@ BoundField.prototype.asHidden = function(attrs)
  */
 BoundField.prototype.asText = function(attrs)
 {
-    return this.asWidget({widget: new TextInput(),
+    return this.asWidget({widget: new widgets.TextInput(),
                           attrs: attrs || {}});
 };
 
@@ -194,7 +204,7 @@ BoundField.prototype.asText = function(attrs)
  */
 BoundField.prototype.asTextarea = function(attrs)
 {
-    return this.asWidget({widget: new Textarea(),
+    return this.asWidget({widget: new widgets.Textarea(),
                           attrs: attrs || {}});
 };
 
@@ -244,7 +254,9 @@ BoundField.prototype.labelTag = function(kwargs)
 BoundField.prototype.toString = function()
 {
     return ""+this.asWidget();
-}.update({safe: true});
+};
+
+BoundField.prototype.toString.safe = true;
 
 /**
  * A collection of Fields that knows how to validate and display itself.
@@ -282,11 +294,11 @@ BoundField.prototype.toString = function()
  *                                    <code>false</code>.
  * @constructor
  */
-function Form(kwargs)
+var Form = exports.Form = function (kwargs)
 {
     kwargs = extendObject({
         data: null, files: null, autoId: "id_{0}", prefix: null, initial: null,
-        errorConstructor: ErrorList, labelSuffix: ":", emptyPermitted: false
+        errorConstructor: util.ErrorList, labelSuffix: ":", emptyPermitted: false
     }, kwargs || {});
     this.isBound = kwargs.data !== null || kwargs.files !== null;
     this.data = kwargs.data || {};
@@ -299,8 +311,7 @@ function Form(kwargs)
     this.emptyPermitted = kwargs.emptyPermitted;
     this._errors = null; // Stores errors after clean() has been called
     this._changedData = null;
-
-    this.fields = {}.update(this.fields || {});
+    this.fields = extendObject({}, this.fields || {});
 }
 
 /** Property under which non-field-specific errors are stored. */
@@ -402,7 +413,9 @@ Form.prototype.__iterator__ = function()
 Form.prototype.toString = function()
 {
     return ""+this.defaultRendering();
-}.update({safe: true});
+};
+
+Form.prototype.toString.safe = true;
 
 Form.prototype.defaultRendering = function()
 {
@@ -493,8 +506,8 @@ Form.prototype.addPrefix = function(fieldName)
 {
     if (this.prefix !== null)
     {
-        return formatString("%(prefix)s-%(fieldName)s",
-                            {prefix: this.prefix, fieldName: fieldName});
+        return util.formatString("%(prefix)s-%(fieldName)s",
+                                 {prefix: this.prefix, fieldName: fieldName});
     }
     return fieldName;
 };
@@ -626,7 +639,7 @@ Form.prototype._htmlOutput = function(normalRow, errorRow, errorsOnSeparateRow, 
     }
     else
     {
-        return ak.safe(rows.join("\n"));
+        return util.ak.safe(rows.join("\n"));
     }
 };
 
@@ -808,7 +821,7 @@ Form.prototype._rawValue = function(fieldname)
  */
 Form.prototype.fullClean = function()
 {
-    this._errors = new ErrorObject();
+    this._errors = new util.ErrorObject();
     if (!this.isBound)
     {
         // Stop further processing
@@ -998,38 +1011,38 @@ Form.prototype.visibleFields = function()
 };
 
 
-Form.instances(
-    Function.subclass(
+var FormMeta = Function.subclass({
+    subclass: function (/* [constructor] [, prototype] */)
+    {
+        var prototype = arguments[
+            typeof(arguments[0]) == 'function' ? 1 : 0];
+        if (prototype)
         {
-            subclass: function (/* [constructor] [, prototype] */)
+            var fields = extendObject({},
+                                      this.prototype.fields || {},
+                                      prototype.fields || {});
+
+            var mixins = (prototype.mixins ||
+                          prototype.mixin ? [prototype.mixin] : []);
+
+            for (var i = 0; i < mixins.length; ++i)
             {
-                var prototype = arguments[
-                    typeof(arguments[0]) == 'function' ? 1 : 0];
-                if (prototype)
-                {
-                    var fields = extendObject({},
-                                              this.prototype.fields || {},
-                                              prototype.fields || {});
-
-                    var mixins = (prototype.mixins ||
-                                  prototype.mixin ? [prototype.mixin] : []);
-
-                    for (var i = 0; i < mixins.length; ++i)
-                    {
-                        extendObject(prototype, mixins[i].prototype);
-                        extendObject(fields, mixins[i].prototype.fields || {});
-                    }
-
-                    for (var name in prototype)
-                    {
-                        if (prototype[name] instanceof Field)
-                        {
-                            fields[name] = prototype[name];
-                            delete prototype[name];
-                        }
-                    }
-                    prototype.fields = fields;
-                }
-                return Function.prototype.subclass.apply(this, arguments);
+                extendObject(prototype, mixins[i].prototype);
+                extendObject(fields, mixins[i].prototype.fields || {});
             }
-        }));
+
+            for (var name in prototype)
+            {
+                if (prototype[name] instanceof Field)
+                {
+                    fields[name] = prototype[name];
+                    delete prototype[name];
+                }
+            }
+            prototype.fields = fields;
+        }
+        return Function.prototype.subclass.apply(this, arguments);
+    }
+});
+
+Form.__proto__ = FormMeta.prototype;

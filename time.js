@@ -2,11 +2,10 @@
  * @fileOverview Utilities for working with times.
  */
 
-/** @namespace */
-var time = {};
+var culture = require('util').ak.format.culture;
 
 
-time.TimeParser = function(format)
+exports.TimeParser = function(format)
 {
     /**
      * The original formatting string which was given.
@@ -25,7 +24,7 @@ time.TimeParser = function(format)
             if (str.length == 2 && 'MdHhms'.indexOf(str[0]) != -1)
                 str = str[0];
             expected.push(str);
-            return time.TimeParser.DIRECTIVE_PATTERNS[str];
+            return exports.TimeParser.DIRECTIVE_PATTERNS[str];
         });
 
     /**
@@ -52,11 +51,11 @@ time.TimeParser = function(format)
  *
  * @type Object
  */
-time.TimeParser.DIRECTIVE_PATTERNS =
+exports.TimeParser.DIRECTIVE_PATTERNS =
 {
-    MMMM: '(' + ak.culture.months.join('|') + ')',
-    MMM: '(' + ak.culture.shortMonths.join('|') + ')',
-    tt: "({0}|{1})".format(ak.culture.am, ak.culture.pm),
+    MMMM: '(' + culture.months.join('|') + ')',
+    MMM: '(' + culture.shortMonths.join('|') + ')',
+    tt: "({0}|{1})".format(culture.am, culture.pm),
     d: "(\\d\\d?)",        // Day of the month as a decimal number [1,31]
     H: "(\\d\\d?)",        // Hour (24-hour clock) as a decimal number [0,23]
     h: "(\\d\\d?)",        // Hour (12-hour clock) as a decimal number [1,12]
@@ -68,7 +67,7 @@ time.TimeParser.DIRECTIVE_PATTERNS =
 };
 
 
-time.TimeParser.prototype =
+exports.TimeParser.prototype =
 {
     /**
      * Attempts to extract date and time details from the given input.
@@ -187,11 +186,11 @@ time.TimeParser.prototype =
         }
         else if (typeof data["MMMM"] != "undefined")
         {
-            time[1] = this._indexOf(data["MMMM"], ak.culture.months) + 1;
+            time[1] = this._indexOf(data["MMMM"], culture.months) + 1;
         }
         else if (typeof data["MMM"] != "undefined")
         {
-            time[1] = this._indexOf(data["MMM"], ak.culture.shortMonths) + 1;
+            time[1] = this._indexOf(data["MMM"], culture.shortMonths) + 1;
         }
 
         // Extract day of month
@@ -234,7 +233,7 @@ time.TimeParser.prototype =
 
             if (typeof data["tt"] != "undefined")
             {
-                if (data["tt"] == ak.culture.pm)
+                if (data["tt"] == culture.pm)
                 {
                     // We've already handled the midnight special case, so it's
                     // safe to bump the time by 12 hours without further checks.
@@ -293,12 +292,12 @@ time.TimeParser.prototype =
 };
 
 
-time.strptime = function(input, format)
+exports.strptime = function(input, format)
 {
-    return new time.TimeParser(format).parse(input);
+    return new exports.TimeParser(format).parse(input);
 };
 
 
-time.strftime = function (date, format) {
+exports.strftime = function (date, format) {
     return date.toString(format);
 };

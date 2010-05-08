@@ -1,4 +1,5 @@
-module("widgets");
+
+with (require('tests').scope) {
 
 test("TextInput", function()
 {
@@ -976,3 +977,5 @@ test("SplitHiddenDateTimeWidget", function()
     equals(""+w.render("date", new Date(2007, 8, 17, 12, 51)),
            "<span><input type=\"hidden\" name=\"date_0\" value=\"2007-09-17\"><input type=\"hidden\" name=\"date_1\" value=\"12:51:00\"></span>");
 });
+
+}

@@ -1,7 +1,5 @@
-module("formsets");
 
-(function()
-{
+with (require('tests').scope) {
 
 // FormSet allows us to use multiple instance of the same form on 1 page.
 // For now, the best way to create a FormSet is by using the formsetFactory
@@ -615,4 +613,4 @@ test("Limiting the maximum number of forms", function()
 
 });
 
-})();
+}

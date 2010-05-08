@@ -1,7 +1,5 @@
-module("fields");
 
-(function()
-{
+with (require('tests').scope) {
 
 /**
  * Retrieves the first error message from a ValidatonError.
@@ -728,4 +726,4 @@ test("IPAddressField", function()
     try { f.clean("256.125.1.5"); } catch (e) { equals(ve(e), "Enter a valid IPv4 address."); }
 });
 
-})();
+}

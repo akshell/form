@@ -2,6 +2,15 @@
  * @fileOverview Form Fields, which validate and normalise (or "clean") data.
  */
 
+var util = require('util');
+var widgets = require('widgets');
+var time = require('time');
+
+var extendObject = util.extendObject;
+var ValidationError = util.ValidationError;
+var contains = util.contains;
+var formatString = util.formatString;
+
 /**
  * An object that is responsible for doing validation and normalisation, or
  * "cleaning", for example: an {@link EmailField} makes sure its data is a valid
@@ -21,7 +30,7 @@
  * @config {Object} [errorMessages] custom error messages for the field.
  * @constructor
  */
-function Field(kwargs)
+var Field = exports.Field = function (kwargs)
 {
     kwargs = extendObject({
         required: true, widget: null, label: null, initial: null,
@@ -33,7 +42,7 @@ function Field(kwargs)
     this.helpText = kwargs.helpText || "";
 
     var widget = kwargs.widget || this.defaultWidget;
-    if (!(widget instanceof Widget))
+    if (!(widget instanceof widgets.Widget))
     {
         // We must have a Widget constructor, so construct with it
         widget = new widget();
@@ -51,7 +60,7 @@ function Field(kwargs)
         extendObject({}, this.defaultErrorMessages, kwargs.errorMessages || {});
 }
 
-Field.instances(InstanceCreatorMeta);
+Field.__proto__ = util.InstanceCreatorMeta.prototype;
 
 /**
  * Values which will, if given to <code>clean</code>, trigger the
@@ -67,12 +76,12 @@ Field.creationCounter = 0;
 /**
  * Default widget to use when rendering this type of Field.
  */
-Field.prototype.defaultWidget = TextInput;
+Field.prototype.defaultWidget = widgets.TextInput;
 
 /**
  * Default widget to use when rendering this type of field as hidden.
  */
-Field.prototype.hiddenWidget = HiddenInput;
+Field.prototype.hiddenWidget = widgets.HiddenInput;
 
 /**
  * Default error messages.
@@ -135,7 +144,7 @@ Field.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Field
  */
-var CharField = Field.subclass(function (kwargs)
+var CharField = exports.CharField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxLength: null, minLength: null
@@ -199,8 +208,8 @@ CharField.prototype.clean = function(value)
 CharField.prototype.widgetAttrs = function(widget)
 {
     var attrs = {};
-    if (this.maxLength !== null && (widget instanceof TextInput ||
-                                    widget instanceof PasswordInput))
+    if (this.maxLength !== null && (widget instanceof widgets.TextInput ||
+                                    widget instanceof widgets.PasswordInput))
     {
         attrs.maxlength = this.maxLength.toString();
     }
@@ -217,7 +226,7 @@ CharField.prototype.widgetAttrs = function(widget)
  * @constructor
  * @augments Field
  */
-var IntegerField = Field.subclass(function (kwargs)
+var IntegerField = exports.IntegerField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxValue: null, minValue: null
@@ -285,7 +294,7 @@ IntegerField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var FloatField = Field.subclass(function (kwargs)
+var FloatField = exports.FloatField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         maxValue: null, minValue: null
@@ -375,7 +384,7 @@ FloatField.prototype._hasChanged = function(initial, data)
  * @constructor
  * @augments Field
  */
-var DecimalField = Field.subclass(function (kwargs)
+var DecimalField = exports.DecimalField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
       maxValue: null, minValue: null, maxDigits: null, decimalPlaces: null
@@ -490,7 +499,7 @@ DecimalField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var DateField = Field.subclass(function (kwargs)
+var DateField = exports.DateField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -570,7 +579,7 @@ DateField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var TimeField = Field.subclass(function (kwargs)
+var TimeField = exports.TimeField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -588,7 +597,7 @@ TimeField.DEFAULT_TIME_INPUT_FORMATS = [
     "H:m"     // "14:30"
 ];
 
-TimeField.prototype.defaultWidget = TimeInput;
+TimeField.prototype.defaultWidget = widgets.TimeInput;
 TimeField.prototype.defaultErrorMessages =
     extendObject({}, TimeField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid time."
@@ -651,7 +660,7 @@ TimeField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var DateTimeField = Field.subclass(function (kwargs)
+var DateTimeField = exports.DateTimeField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({
         inputFormats: null,
@@ -676,7 +685,7 @@ DateTimeField.DEFAULT_DATETIME_INPUT_FORMATS = [
     "M/d/yy"          // "10/25/06"
 ]
 
-DateTimeField.prototype.defaultWidget = DateTimeInput;
+DateTimeField.prototype.defaultWidget = widgets.DateTimeInput;
 DateTimeField.prototype.defaultErrorMessages =
     extendObject({}, DateTimeField.prototype.defaultErrorMessages, {
         invalid: "Enter a valid date/time."
@@ -742,7 +751,7 @@ DateTimeField.prototype.clean = function(value)
  * @constructor
  * @augments CharField
  */
-var RegexField = CharField.subclass(function (regex, kwargs)
+var RegexField = exports.RegexField = CharField.subclass(function (regex, kwargs)
 {
     CharField.call(this, kwargs);
     if (typeof regex == "string")
@@ -779,7 +788,7 @@ RegexField.prototype.clean = function(value)
  * @constructor
  * @augments RegexField
  */
-var EmailField = RegexField.subclass(function (kwargs)
+var EmailField = exports.EmailField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, EmailField.EMAIL_REGEXP, kwargs);
 });
@@ -827,7 +836,7 @@ UploadedFile.prototype.toString = function()
  * @constructor
  * @augments Field
  */
-var FileField = Field.subclass(function (kwargs)
+var FileField = exports.FileField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({maxLength: null}, kwargs);
     this.maxLength = kwargs.maxLength;
@@ -835,7 +844,7 @@ var FileField = Field.subclass(function (kwargs)
     Field.call(this, kwargs);
 });
 
-FileField.prototype.defaultWidget = FileInput;
+FileField.prototype.defaultWidget = widgets.FileInput;
 FileField.prototype.defaultErrorMessages =
     extendObject({}, FileField.prototype.defaultErrorMessages, {
         invalid: "No file was submitted. Check the encoding type on the form.",
@@ -907,7 +916,7 @@ FileField.prototype.clean = function(data, initial)
  * @constructor
  * @augments FileField
  */
-var ImageField = FileField.subclass(function (kwargs)
+var ImageField = exports.ImageField = FileField.subclass(function (kwargs)
 {
     FileField.call(this, kwargs);
 });
@@ -951,7 +960,7 @@ ImageField.prototype.clean = function(data, initial)
  * @constructor
  * @augments RegexField
  */
-var URLField = RegexField.subclass(function (kwargs)
+var URLField = exports.URLField = RegexField.subclass(function (kwargs)
 {
     kwargs = extendObject({
         verifyExists: false, userAgent: URLField.URL_VALIDATOR_USER_AGENT
@@ -1001,7 +1010,7 @@ URLField.prototype.clean = function(value)
         value = "http://" + value;
     }
     // If no URL path given, assume /
-    if (value && !parseUri(value).path)
+    if (value && !util.parseUri(value).path)
     {
         value += "/";
     }
@@ -1026,12 +1035,12 @@ URLField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var BooleanField = Field.subclass(function (kwargs)
+var BooleanField = exports.BooleanField = Field.subclass(function (kwargs)
 {
     Field.call(this, kwargs);
 });
 
-BooleanField.prototype.defaultWidget = CheckboxInput;
+BooleanField.prototype.defaultWidget = widgets.CheckboxInput;
 
 /**
  * Normalises the given value to a <code>Boolean</code> primitive.
@@ -1074,12 +1083,12 @@ BooleanField.prototype.clean = function(value)
  * @constructor
  * @augments BooleanField
  */
-var NullBooleanField = BooleanField.subclass(function (kwargs)
+var NullBooleanField = exports.NullBooleanField = BooleanField.subclass(function (kwargs)
 {
     BooleanField.call(this, kwargs);
 });
 
-NullBooleanField.prototype.defaultWidget = NullBooleanSelect;
+NullBooleanField.prototype.defaultWidget = widgets.NullBooleanSelect;
 
 NullBooleanField.prototype.clean = function(value)
 {
@@ -1116,7 +1125,7 @@ NullBooleanField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var ChoiceField = Field.subclass(function (kwargs)
+var ChoiceField = exports.ChoiceField = Field.subclass(function (kwargs)
 {
     this.__defineGetter__("choices", function()
     {
@@ -1135,7 +1144,7 @@ var ChoiceField = Field.subclass(function (kwargs)
     this.choices = kwargs.choices;
 });
 
-ChoiceField.prototype.defaultWidget = Select;
+ChoiceField.prototype.defaultWidget = widgets.Select;
 ChoiceField.prototype.defaultErrorMessages =
     extendObject({}, ChoiceField.prototype.defaultErrorMessages, {
         invalidChoice: "Select a valid choice. %(value)s is not one of the available choices."
@@ -1220,7 +1229,7 @@ ChoiceField.prototype.validValue = function(value)
  * @constructor
  * @augments ChoiceField
  */
-var TypedChoiceField = ChoiceField.subclass(function (kwargs)
+var TypedChoiceField = exports.TypedChoiceField = ChoiceField.subclass(function (kwargs)
 {
     kwargs = extendObject({
         coerce: function(val) { return val; }, emptyValue: ""
@@ -1264,13 +1273,13 @@ TypedChoiceField.prototype.clean = function(value)
  * @constructor
  * @augments ChoiceField
  */
-var MultipleChoiceField = ChoiceField.subclass(function (kwargs)
+var MultipleChoiceField = exports.MultipleChoiceField = ChoiceField.subclass(function (kwargs)
 {
     ChoiceField.call(this, kwargs);
 });
 
-MultipleChoiceField.prototype.defaultWidget = SelectMultiple;
-MultipleChoiceField.prototype.hiddenWidget = MultipleHiddenInput;
+MultipleChoiceField.prototype.defaultWidget = widgets.SelectMultiple;
+MultipleChoiceField.prototype.hiddenWidget = widgets.MultipleHiddenInput;
 MultipleChoiceField.prototype.defaultErrorMessages =
     extendObject({}, MultipleChoiceField.prototype.defaultErrorMessages, {
         invalidChoice: "Select a valid choice. %(value)s is not one of the available choices.",
@@ -1341,7 +1350,7 @@ MultipleChoiceField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var ComboField = Field.subclass(function (kwargs)
+var ComboField = exports.ComboField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({fields: []}, kwargs || {});
     Field.call(this, kwargs);
@@ -1388,7 +1397,7 @@ ComboField.prototype.clean = function(value)
  * @constructor
  * @augments Field
  */
-var MultiValueField = Field.subclass(function (kwargs)
+var MultiValueField = exports.MultiValueField = Field.subclass(function (kwargs)
 {
     kwargs = extendObject({fields: []}, kwargs || {});
     Field.call(this, kwargs);
@@ -1423,7 +1432,7 @@ MultiValueField.prototype.defaultErrorMessages =
 MultiValueField.prototype.clean = function(value)
 {
     var cleanData = [];
-    var errors = new ErrorList();
+    var errors = new util.ErrorList();
 
     if (!value || value instanceof Array)
     {
@@ -1529,7 +1538,7 @@ MultiValueField.prototype.compress = function(dataList)
  * @constructor
  * @augments ChoiceField
  */
-var FilePathField = ChoiceField.subclass(function (path, kwargs)
+var FilePathField = exports.FilePathField = ChoiceField.subclass(function (path, kwargs)
 {
     kwargs = extendObject({
         match: null, recursive: false, required: true, widget: null,
@@ -1574,7 +1583,7 @@ var FilePathField = ChoiceField.subclass(function (path, kwargs)
  * @constructor
  * @augments MultiValueField
  */
-var SplitDateTimeField = MultiValueField.subclass(function (kwargs)
+var SplitDateTimeField = exports.SplitDateTimeField = MultiValueField.subclass(function (kwargs)
 {
     kwargs = extendObject({}, kwargs || {});
     var errors = extendObject({}, this.defaultErrorMessages);
@@ -1588,7 +1597,7 @@ var SplitDateTimeField = MultiValueField.subclass(function (kwargs)
     MultiValueField.call(this, kwargs);
 });
 
-SplitDateTimeField.prototype.defaultWidget = SplitDateTimeWidget;
+SplitDateTimeField.prototype.defaultWidget = widgets.SplitDateTimeWidget;
 SplitDateTimeField.prototype.defaultErrorMessages =
     extendObject({}, SplitDateTimeField.prototype.defaultErrorMessages, {
         invalidDate: "Enter a valid date.",
@@ -1635,7 +1644,7 @@ SplitDateTimeField.prototype.compress = function(dataList)
  * @constructor
  * @augments RegexField
  */
-var IPAddressField = RegexField.subclass(function (kwargs)
+var IPAddressField = exports.IPAddressField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, IPAddressField.IPV4_REGEXP, kwargs);
 });;
@@ -1659,7 +1668,7 @@ IPAddressField.prototype.defaultErrorMessages =
  * @constructor
  * @augments RegexField
  */
-var SlugField = RegexField.subclass(function (kwargs)
+var SlugField = exports.SlugField = RegexField.subclass(function (kwargs)
 {
     RegexField.call(this, SlugField.SLUG_REGEXP, kwargs);
 });;

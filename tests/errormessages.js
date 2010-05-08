@@ -1,9 +1,7 @@
-module("error messages");
 
 // Tests that custom error messages are used, when provided
 
-(function()
-{
+with (require('tests').scope) {
 
 /**
  * Retrieves the first error message from a ValidatonError.
@@ -261,4 +259,4 @@ test("SlugField", function()
     try { f.clean("a b"); } catch (e) { equals(ve(e), "INVALID SLUG"); }
 });
 
-})();
+}

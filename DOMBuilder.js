@@ -1,3 +1,6 @@
+
+var ak = require('util').ak;
+
 /**
  * Provides utility methods for creating DOM elements in a more declarative
  * manner.
@@ -65,7 +68,7 @@
  * @static
  * @author Jonathan Buchanan
  */
-var DOMBuilder = (function()
+var DOMBuilder = exports.DOMBuilder = (function()
 {
     function conditionalEscape(html)
     {
@@ -173,8 +176,10 @@ var DOMBuilder = (function()
             // Closing tag
             parts.push("</" + this.tagName + ">");
             return parts.join("");
-        }.update({safe: true})
+        }
     };
+
+    Tag.prototype.toString.safe = true;
 
     var o =
     /** @scope DOMBuilder */

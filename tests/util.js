@@ -1,4 +1,5 @@
-module("util");
+
+with (require('tests').scope) {
 
 test("contains", function()
 {
@@ -40,3 +41,5 @@ test("ValidationError", function()
     equals(""+new ValidationError(DOMBuilder.markSafe(example)).messages.asUL(),
            "<ul class=\"errorlist\"><li>Example of link: <a href=\"http://www.example.com/\">example</a></li></ul>");
 });
+
+}
